@@ -1,0 +1,11 @@
+1. Install Anaconda python (https://www.anaconda.com/) in default location
+2. Create a python environment named "tf_final", Python version 3.10.
+3. Use requirements. txt file to install needed packages/versions.
+4. Install CUDA.
+5. Create CUDNN folder inside C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v11.2, unzip CUDNN folders (bin, include, lib) into that folder
+6. Add user/system paths to system environment variables (see text file), then reboot
+7. Go to program folder, set Anaconda Prompt shortcuts to start in local directory
+8. Run the Anaconda prompt
+9. Run "tf" to start tf.bat file that loads up tf_final environment
+10. Run "jn" for jupyter notebook if using.
+11. For training, run the appropriate batch file

@@ -1,0 +1,11 @@
+# Python env
+.venv
+
+# Too big to fit on Github or useless
+Capstone_DVD/Train_7_category_lists/image_data
+Capstone_DVD/cud*
+Capstone_DVD/Train_7_category_lists/.ipynb_checkpoints
+Capstone_DVD/Train_7_category_lists/Anaconda*
+Capstone_DVD/Anaconda*
+Capstone_DVD/IFGNAC/
+Capstone_DVD/Single_Sherd_Analyzer_7
