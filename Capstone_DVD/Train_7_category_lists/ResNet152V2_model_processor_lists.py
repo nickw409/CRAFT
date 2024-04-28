@@ -6,9 +6,9 @@ from keras.optimizers import RMSprop,SGD,Adam
 from keras.applications import ResNet152, ResNet152V2,DenseNet169, ResNet50,resnet,VGG16,vgg16,resnet_v2
 from keras.layers import Input, Dropout,Flatten,Dense,GlobalAveragePooling2D
 from keras.models import Model,load_model
-from keras.preprocessing.image import ImageDataGenerator
-from tensorflow.keras.utils import img_to_array
-from tensorflow.keras.applications import imagenet_utils
+from keras.src.legacy.preprocessing.image import ImageDataGenerator
+from keras.utils import img_to_array
+from keras.applications import imagenet_utils
 from imutils import paths
 from random import shuffle
 import numpy as np
@@ -21,7 +21,7 @@ from csv import reader
 
 
 #Needed for top layers of model
-from tensorflow.keras.layers import BatchNormalization
+from keras.layers import BatchNormalization
 from keras import regularizers
 
 #Adds top classification layer to transfer learning model
