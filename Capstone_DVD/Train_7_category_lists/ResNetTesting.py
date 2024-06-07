@@ -147,9 +147,10 @@ print("Test data loaded")
 y_train = LabelBinarizer().fit_transform(y_train)
 y_test = LabelBinarizer().fit_transform(y_test)
 
-
+# Create base model of ResNet
 baseModel = ResNet152V2(weights="imagenet", include_top=False, input_tensor=input)
 
+# Create head model from ResNet base model for transfer learning
 headModel = baseModel.output
 headModel = keras.layers.GlobalAveragePooling2D()(headModel)
 headModel = keras.layers.Flatten()(headModel)
@@ -159,7 +160,7 @@ headModel = keras.layers.Dense(num_classes, activation="softmax")(headModel)
 
 model = keras.models.Model(inputs=baseModel.input, outputs=headModel)
 
-
+# Prevent base model from training
 for layer in baseModel.layers:
    layer.trainable = False
 
@@ -177,6 +178,7 @@ model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs_head,
           validation_split=0.1, validation_data=(x_test, y_test), 
           callbacks=callbacks)
 
+# Allow base model to train along with head model for full training
 for layer in baseModel.layers[0:]:
    layer.trainable = True
 
