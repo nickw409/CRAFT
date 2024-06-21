@@ -3,15 +3,17 @@ from keras.applications import ResNet152V2, resnet_v2
 import numpy as np
 import tensorflow as tf
 from sklearn.preprocessing import LabelBinarizer
+from sklearn.metrics import classification_report, confusion_matrix
 import cv2
 from csv import reader
+import matplotlib.pyplot as plt
 import os
 import argparse
 from random import shuffle
 
 
 def step_decay(epoch):
-    initAlpha=.0020
+    initAlpha=.0010
     if epoch <= 20:
         alpha=initAlpha
     elif epoch <= 40:
@@ -77,6 +79,89 @@ def create_data_arrays_list(imageData, image_dimension, verbose=-1):
     # return image array data, labels
     return (np.array(data), np.array(labels))
 
+
+def data_augmentation_old(images):
+    # Factor takes rotation value and multiplies by 2 pi to get min and max 
+    # rotation limits. Using a value of 0.5 results in a 180 rotation range
+    rotation = 0.5
+    zoom = 0.3
+    # fill value of 255.0 fills all blank spaces created by rotations and zooms 
+    # with white
+    fill_val = 255.0
+    preprocessing_layers = keras.Sequential([
+        keras.layers.RandomRotation(factor=rotation, fill_mode="constant", 
+                                    fill_value=fill_val),
+        keras.layers.RandomZoom(height_factor=zoom, width_factor=zoom,
+                                fill_mode="constant", fill_value=fill_val)
+    ])
+
+    
+    return preprocessing_layers(images)
+
+
+def train_model(model, train_dataset, augment_data=False):
+    # Prevent base model from training
+    for layer in baseModel.layers:
+        layer.trainable = False
+
+    opt = keras.optimizers.RMSprop(learning_rate=0.01)
+
+    model.compile(loss="categorical_crossentropy", optimizer=opt,
+                metrics=["accuracy"])
+
+    # Add Learning rate scheduler to model callbacks
+    callbacks=[keras.callbacks.LearningRateScheduler(step_decay)]
+
+    print("[INFO] training head...")
+
+    model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs_head, 
+            validation_split=0.1, validation_data=(x_test, y_test), 
+            callbacks=callbacks)
+
+    # Allow base model to train along with head model for full training
+    for layer in baseModel.layers[0:]:
+        layer.trainable = True
+
+    print("Re-compiling model...")
+
+    # Have to rebuild optimizer for model recompile
+    opt = keras.optimizers.SGD(learning_rate=0.005)
+    model.compile(loss="categorical_crossentropy", optimizer=opt,
+                metrics=["accuracy"])
+    print("Model Compiled")
+
+    if augment_data == True:
+        train_dataset = (
+            train_dataset
+            .shuffle(batch_size*100)
+            .batch(batch_size)
+            .map(lambda x, y: (data_augmentation(x), y), num_parallel_calls=tf.data.AUTOTUNE)
+            .prefetch(tf.data.AUTOTUNE)
+        )
+    else:
+        train_dataset = (
+            train_dataset
+            .shuffle(batch_size*100)
+            .batch(batch_size)
+        )
+
+    full_model_path = os.path.join(models_dir, "", "ResNet152V2" + ".keras")
+    callbacks=[keras.callbacks.LearningRateScheduler(step_decay),
+               keras.callbacks.ModelCheckpoint(full_model_path, monitor="val_accuracy",
+                                               verbose=1, save_best_only=True,
+                                               save_weights_only=False, mode="max",
+                                               save_freq="epoch"),
+                keras.callbacks.EarlyStopping(patience=5)]
+
+    print("Fine-Tuning Final Model...")
+    model.fit(train_dataset, batch_size=batch_size, epochs=epochs,
+            validation_split=0.1, validation_data=(x_test, y_test), 
+            callbacks=callbacks)
+
+    model_best = keras.models.load_model(full_model_path)
+    return model_best
+
+
 # Arg parser for set number
 ap = argparse.ArgumentParser()
 ap.add_argument("-s", "--set", required=True,
@@ -90,13 +175,14 @@ num_classes = 7
 image_dimension = 224
 batch_size = 32
 epochs_head = 10
-epochs = 90
+epochs = 120
 l2_constant=0.02
 input = keras.Input(shape=(image_dimension, image_dimension, 3))
 
 #Define directories to use based on set number for loading data, saving data
-train_dataset=set_directory + "/Set_" + set_number +"/train_" + set_number + ".csv"
-test_dataset=set_directory + "/Set_" + set_number +"/test_" + set_number + ".csv"
+train_dataset = set_directory + "/Set_" + set_number +"/train_" + set_number + ".csv"
+test_dataset = set_directory + "/Set_" + set_number +"/test_" + set_number + ".csv"
+models_dir = set_directory +"/Set_" + set_number +"/models"
 
 # Get lists of train images, types from file
 print("[INFO] loading images...")
@@ -106,13 +192,13 @@ with open(train_dataset, 'r') as read_obj:
     # Pass reader object to list() to get a list of lists
     train_data_list = list(csv_reader)
 
-#close file
+# close file
 read_obj.close()
 
-#randomize order of images
+# randomize order of images
 shuffle(train_data_list)
 
-#same for test images, types
+# same for test images, types
 with open(test_dataset, 'r') as read_obj:
     # pass the file object to reader() to get the reader object
     csv_reader = reader(read_obj)
@@ -126,9 +212,18 @@ read_obj.close()
 
 (test_data,test_labels)=create_data_arrays_list(test_data_list,image_dimension,verbose=250)
 
-#Set classNames from train_labels list, rename to eliminate numbers from the front
+# Set classNames from train_labels list, rename to eliminate numbers from the front
 classNames = [str(x) for x in np.unique(train_labels)]
 classNames = ['Kanaa',  'Black_Mesa', 'Sosi', 'Dogoszhi', 'Flagstaff', 'Tusayan', 'Kayenta']
+
+
+#plt.figure()
+#for i in range(9):
+#    augmented_images = image_preprocessing(train_data[0])
+#    ax = plt.subplot(3, 3, i + 1)
+#    plt.imshow(augmented_images.numpy().astype("uint8"))
+#    plt.axis("off")
+#plt.show()
 
 
 train_data = train_data.astype("float")
@@ -136,7 +231,7 @@ train_data = resnet_v2.preprocess_input(train_data)
 
 print("Training data loaded")
 
-#Load test data separately
+# Load test data separately
 test_data = test_data.astype("float") 
 test_data = resnet_v2.preprocess_input(test_data)
 print("Test data loaded")
@@ -147,8 +242,10 @@ print("Test data loaded")
 y_train = LabelBinarizer().fit_transform(y_train)
 y_test = LabelBinarizer().fit_transform(y_test)
 
+
 # Create base model of ResNet
-baseModel = ResNet152V2(weights="imagenet", include_top=False, input_tensor=input)
+baseModel = ResNet152V2(weights="imagenet", include_top=False, 
+                        input_tensor=input)
 
 # Create head model from ResNet base model for transfer learning
 headModel = baseModel.output
@@ -160,41 +257,35 @@ headModel = keras.layers.Dense(num_classes, activation="softmax")(headModel)
 
 model = keras.models.Model(inputs=baseModel.input, outputs=headModel)
 
-# Prevent base model from training
-for layer in baseModel.layers:
-   layer.trainable = False
+# Add data augmenting layers to full ResNet model
+data_augmentation = keras.Sequential([
+    keras.layers.RandomRotation(factor=0.1, fill_mode="constant", 
+                                    fill_value=255.0),
+    keras.layers.RandomZoom(height_factor=0.1, width_factor=0.1,
+                            fill_mode="constant", fill_value=255.0),
+])
 
-opt = keras.optimizers.RMSprop(learning_rate=0.01)
+train_dataset = tf.data.Dataset.from_tensor_slices((x_train, y_train))
 
-model.compile(loss="categorical_crossentropy", optimizer=opt,
-              metrics=["accuracy"])
+best_model = train_model(model, train_dataset)
+best_augmented_model = train_model(model, train_dataset, augment_data=True)
 
-#Add Learning rate scheduler to model callbacks
-callbacks=[keras.callbacks.LearningRateScheduler(step_decay)]
+# evaluate test data
+print("[INFO] evaluating test data for non-augmented model...")
+predictions = best_model.predict(x_test, batch_size=batch_size)
+class_report=classification_report(y_test.argmax(axis=1), predictions.argmax(axis=1), target_names=classNames)
+print(class_report)
+print("Confusion matrix")
+print(classNames)
+con_mat=confusion_matrix(np.argmax(y_test, axis=1), predictions.argmax(axis=1))
+print(con_mat)
 
-print("[INFO] training head...")
 
-model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs_head, 
-          validation_split=0.1, validation_data=(x_test, y_test), 
-          callbacks=callbacks)
-
-# Allow base model to train along with head model for full training
-for layer in baseModel.layers[0:]:
-   layer.trainable = True
-
-print("Re-compiling model...")
-
-# Have to rebuild optimizer for model recompile
-opt = keras.optimizers.SGD(learning_rate=0.005)
-model.compile(loss="categorical_crossentropy", optimizer=opt,
-              metrics=["accuracy"])
-print("Model Compiled")
-
-print("Fine-Tuning Final Model...")
-model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs,
-          validation_split=0.1, validation_data=(x_test, y_test), 
-          callbacks=callbacks)
-
-score = model.evaluate(x_test, y_test, verbose=1)
-print("Test loss:", score[0])
-print("Test accuracy:", score[1])
+print("[INFO] evaluating test data for augmented model...")
+predictions = best_augmented_model.predict(x_test, batch_size=batch_size)
+class_report=classification_report(y_test.argmax(axis=1), predictions.argmax(axis=1), target_names=classNames)
+print(class_report)
+print("Confusion matrix")
+print(classNames)
+con_mat=confusion_matrix(np.argmax(y_test, axis=1), predictions.argmax(axis=1))
+print(con_mat)
