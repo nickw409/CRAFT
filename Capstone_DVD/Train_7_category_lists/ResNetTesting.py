@@ -251,13 +251,13 @@ baseModel = ResNet152V2(weights="imagenet", include_top=False,
 headModel = baseModel.output
 headModel = keras.layers.GlobalAveragePooling2D()(headModel)
 headModel = keras.layers.Flatten()(headModel)
-headModel = keras.layers.Dense(512, activation="relu", 
+headModel = keras.layers.Dense(1024, activation="relu", 
                                kernel_regularizer=keras.regularizers.L2(l2_constant))(headModel)
 headModel = keras.layers.Dense(num_classes, activation="softmax")(headModel)
 
 model = keras.models.Model(inputs=baseModel.input, outputs=headModel)
 
-# Add data augmenting layers to full ResNet model
+
 data_augmentation = keras.Sequential([
     keras.layers.RandomRotation(factor=0.1, fill_mode="constant", 
                                     fill_value=255.0),
