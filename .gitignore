@@ -9,3 +9,9 @@ Capstone_DVD/Train_7_category_lists/Anaconda*
 Capstone_DVD/Anaconda*
 Capstone_DVD/IFGNAC/
 Capstone_DVD/Single_Sherd_Analyzer_7
+
+# Not needed for development
+Testing/
+
+# Macos junk
+.DS_Store
