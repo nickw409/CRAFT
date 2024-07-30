@@ -14,7 +14,7 @@ from random import shuffle
 
 
 def step_decay(epoch):
-    initAlpha=.0010
+    initAlpha=.0020
     if epoch <= 20:
         alpha=initAlpha
     elif epoch <= 40:
@@ -81,7 +81,7 @@ def create_data_arrays_list(imageData, image_dimension, verbose=-1):
     return (np.array(data), np.array(labels))
 
 
-def train_model(model, train_dataset):   
+def train_model(model, train_dataset, steps_per_epoch=False):   
     # Prevent base model from training
     for layer in baseModel.layers:
         layer.trainable = False
@@ -96,9 +96,14 @@ def train_model(model, train_dataset):
 
     print("[INFO] training head...")
 
-    model.fit(train_dataset, batch_size=batch_size, epochs=epochs_head, 
+    if steps_per_epoch:
+        model.fit(train_dataset, batch_size=batch_size, epochs=epochs_head, 
             validation_split=0.1, validation_data=(x_test, y_test),
             steps_per_epoch=len(x_train) // batch_size, callbacks=callbacks)
+    else:    
+        model.fit(train_dataset, batch_size=batch_size, epochs=epochs_head, 
+            validation_split=0.1, validation_data=(x_test, y_test),
+            callbacks=callbacks)
 
     # Allow base model to train along with head model for full training
     for layer in baseModel.layers[0:]:
@@ -120,12 +125,18 @@ def train_model(model, train_dataset):
                                                verbose=1, save_best_only=True,
                                                save_weights_only=False, mode="max",
                                                save_freq="epoch"),
-                keras.callbacks.EarlyStopping(patience=2)]
+                keras.callbacks.EarlyStopping(patience=10)]
 
     print("Fine-Tuning Final Model...")
-    model.fit(train_dataset, batch_size=batch_size, epochs=epochs,
-            validation_split=0.1, validation_data=(x_test, y_test), 
+    
+    if steps_per_epoch:
+        model.fit(train_dataset, batch_size=batch_size, epochs=epochs, 
+            validation_split=0.1, validation_data=(x_test, y_test),
             steps_per_epoch=len(x_train) // batch_size, callbacks=callbacks)
+    else:    
+        model.fit(train_dataset, batch_size=batch_size, epochs=epochs, 
+            validation_split=0.1, validation_data=(x_test, y_test),
+            callbacks=callbacks)
 
     model_best = keras.models.load_model(full_model_path)
     return model_best
@@ -144,7 +155,7 @@ num_classes = 7
 image_dimension = 224
 batch_size = 32
 epochs_head = 10
-epochs = 120
+epochs = 50
 l2_constant=0.02
 input = keras.Input(shape=(image_dimension, image_dimension, 3))
 
@@ -186,15 +197,6 @@ classNames = [str(x) for x in np.unique(train_labels)]
 classNames = ['Kanaa',  'Black_Mesa', 'Sosi', 'Dogoszhi', 'Flagstaff', 'Tusayan', 'Kayenta']
 
 
-#plt.figure()
-#for i in range(9):
-#    augmented_images = image_preprocessing(train_data[0])
-#    ax = plt.subplot(3, 3, i + 1)
-#    plt.imshow(augmented_images.numpy().astype("uint8"))
-#    plt.axis("off")
-#plt.show()
-
-
 train_data = train_data.astype("float")
 train_data = resnet_v2.preprocess_input(train_data)
 
@@ -228,10 +230,10 @@ model = keras.models.Model(inputs=baseModel.input, outputs=headModel)
 
 # Add data augmenting layers to full ResNet model
 data_augmentation = keras.Sequential([
-    keras.layers.RandomRotation(factor=0.1, fill_mode="constant", 
-                                    fill_value=255.0),
-    keras.layers.RandomZoom(height_factor=0.1, width_factor=0.1,
-                            fill_mode="constant", fill_value=255.0),
+    keras.layers.RandomRotation(factor=0.5, fill_mode="constant", 
+                                    fill_value=1.0),
+    keras.layers.RandomZoom(height_factor=0.3, width_factor=0.3,
+                            fill_mode="constant", fill_value=1.0),
 ])
 
 # Testing if ImageDataGenerator against augmentation layers
@@ -268,7 +270,8 @@ train_dataset = (
     .batch(batch_size)
 )
 
-best_generator_augmented_model = train_model(model, generator_augmented_train_dataset)
+best_generator_augmented_model = train_model(model, generator_augmented_train_dataset,
+                                             steps_per_epoch=True)
 best_layer_augmented_model = train_model(model, layer_augmented_train_dataset)
 best_base_model = train_model(model, train_dataset)
 
