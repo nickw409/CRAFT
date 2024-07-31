@@ -1,7 +1,7 @@
 # Python env
 .venv
 
-# Too big to fit on Github or useless
+# Too big to fit on Github
 Capstone_DVD/Train_7_category_lists/image_data
 Capstone_DVD/cud*
 Capstone_DVD/Train_7_category_lists/.ipynb_checkpoints

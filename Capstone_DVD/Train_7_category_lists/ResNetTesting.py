@@ -1,5 +1,6 @@
 import keras
-from keras.applications import ResNet152V2, resnet_v2
+from keras.api.applications import ResNet152V2, resnet_v2
+from keras.src.legacy.preprocessing.image import ImageDataGenerator
 import numpy as np
 import tensorflow as tf
 from sklearn.preprocessing import LabelBinarizer
@@ -13,7 +14,7 @@ from random import shuffle
 
 
 def step_decay(epoch):
-    initAlpha=.0010
+    initAlpha=.0020
     if epoch <= 20:
         alpha=initAlpha
     elif epoch <= 40:
@@ -80,26 +81,7 @@ def create_data_arrays_list(imageData, image_dimension, verbose=-1):
     return (np.array(data), np.array(labels))
 
 
-def data_augmentation_old(images):
-    # Factor takes rotation value and multiplies by 2 pi to get min and max 
-    # rotation limits. Using a value of 0.5 results in a 180 rotation range
-    rotation = 0.5
-    zoom = 0.3
-    # fill value of 255.0 fills all blank spaces created by rotations and zooms 
-    # with white
-    fill_val = 255.0
-    preprocessing_layers = keras.Sequential([
-        keras.layers.RandomRotation(factor=rotation, fill_mode="constant", 
-                                    fill_value=fill_val),
-        keras.layers.RandomZoom(height_factor=zoom, width_factor=zoom,
-                                fill_mode="constant", fill_value=fill_val)
-    ])
-
-    
-    return preprocessing_layers(images)
-
-
-def train_model(model, train_dataset, augment_data=False):
+def train_model(model, train_dataset, steps_per_epoch=False):   
     # Prevent base model from training
     for layer in baseModel.layers:
         layer.trainable = False
@@ -114,8 +96,13 @@ def train_model(model, train_dataset, augment_data=False):
 
     print("[INFO] training head...")
 
-    model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs_head, 
-            validation_split=0.1, validation_data=(x_test, y_test), 
+    if steps_per_epoch:
+        model.fit(train_dataset, batch_size=batch_size, epochs=epochs_head, 
+            validation_split=0.1, validation_data=(x_test, y_test),
+            steps_per_epoch=len(x_train) // batch_size, callbacks=callbacks)
+    else:    
+        model.fit(train_dataset, batch_size=batch_size, epochs=epochs_head, 
+            validation_split=0.1, validation_data=(x_test, y_test),
             callbacks=callbacks)
 
     # Allow base model to train along with head model for full training
@@ -130,20 +117,7 @@ def train_model(model, train_dataset, augment_data=False):
                 metrics=["accuracy"])
     print("Model Compiled")
 
-    if augment_data == True:
-        train_dataset = (
-            train_dataset
-            .shuffle(batch_size*100)
-            .batch(batch_size)
-            .map(lambda x, y: (data_augmentation(x), y), num_parallel_calls=tf.data.AUTOTUNE)
-            .prefetch(tf.data.AUTOTUNE)
-        )
-    else:
-        train_dataset = (
-            train_dataset
-            .shuffle(batch_size*100)
-            .batch(batch_size)
-        )
+    
 
     full_model_path = os.path.join(models_dir, "", "ResNet152V2" + ".keras")
     callbacks=[keras.callbacks.LearningRateScheduler(step_decay),
@@ -151,11 +125,17 @@ def train_model(model, train_dataset, augment_data=False):
                                                verbose=1, save_best_only=True,
                                                save_weights_only=False, mode="max",
                                                save_freq="epoch"),
-                keras.callbacks.EarlyStopping(patience=5)]
+                keras.callbacks.EarlyStopping(patience=10)]
 
     print("Fine-Tuning Final Model...")
-    model.fit(train_dataset, batch_size=batch_size, epochs=epochs,
-            validation_split=0.1, validation_data=(x_test, y_test), 
+    
+    if steps_per_epoch:
+        model.fit(train_dataset, batch_size=batch_size, epochs=epochs, 
+            validation_split=0.1, validation_data=(x_test, y_test),
+            steps_per_epoch=len(x_train) // batch_size, callbacks=callbacks)
+    else:    
+        model.fit(train_dataset, batch_size=batch_size, epochs=epochs, 
+            validation_split=0.1, validation_data=(x_test, y_test),
             callbacks=callbacks)
 
     model_best = keras.models.load_model(full_model_path)
@@ -169,13 +149,13 @@ ap.add_argument("-s", "--set", required=True,
 args = vars(ap.parse_args())
 
 set_number=str(args["set"])
-set_directory= os.getcwd() + "/image_data/"
-images_dir = os.getcwd() + "/image_data/"
+set_directory= os.getcwd() + "/image_data"
+images_dir = os.getcwd() + "/image_data"
 num_classes = 7
 image_dimension = 224
 batch_size = 32
 epochs_head = 10
-epochs = 120
+epochs = 50
 l2_constant=0.02
 input = keras.Input(shape=(image_dimension, image_dimension, 3))
 
@@ -217,15 +197,6 @@ classNames = [str(x) for x in np.unique(train_labels)]
 classNames = ['Kanaa',  'Black_Mesa', 'Sosi', 'Dogoszhi', 'Flagstaff', 'Tusayan', 'Kayenta']
 
 
-#plt.figure()
-#for i in range(9):
-#    augmented_images = image_preprocessing(train_data[0])
-#    ax = plt.subplot(3, 3, i + 1)
-#    plt.imshow(augmented_images.numpy().astype("uint8"))
-#    plt.axis("off")
-#plt.show()
-
-
 train_data = train_data.astype("float")
 train_data = resnet_v2.preprocess_input(train_data)
 
@@ -259,20 +230,54 @@ model = keras.models.Model(inputs=baseModel.input, outputs=headModel)
 
 
 data_augmentation = keras.Sequential([
-    keras.layers.RandomRotation(factor=0.1, fill_mode="constant", 
-                                    fill_value=255.0),
-    keras.layers.RandomZoom(height_factor=0.1, width_factor=0.1,
-                            fill_mode="constant", fill_value=255.0),
+    keras.layers.RandomRotation(factor=0.5, fill_mode="constant", 
+                                    fill_value=1.0),
+    keras.layers.RandomZoom(height_factor=0.3, width_factor=0.3,
+                            fill_mode="constant", fill_value=1.0),
 ])
+
+# Testing if ImageDataGenerator against augmentation layers
+#Parameters for ImageDataGenerator
+shift=0.0
+zoom=0.3
+# construct the image generator for data augmentation
+#fill_mode is value put into empty spaces created by rotation or zooming; cval=1.0 means white
+aug = ImageDataGenerator(rotation_range=180,
+	horizontal_flip=False, vertical_flip=False, width_shift_range=shift, 
+    height_shift_range=shift, zoom_range=zoom, fill_mode="constant",cval=1.0)
+
+generator_augmented_train_dataset = tf.data.Dataset.from_generator(
+    lambda: aug.flow(x_train, y_train, batch_size=batch_size),
+    output_signature=(
+        tf.TensorSpec(shape=(None, 224, 224, 3), dtype=tf.float32, name=None), 
+        tf.TensorSpec(shape=(None, 7), dtype=tf.int64, name=None)
+    )
+)
 
 train_dataset = tf.data.Dataset.from_tensor_slices((x_train, y_train))
 
-best_model = train_model(model, train_dataset)
-best_augmented_model = train_model(model, train_dataset, augment_data=True)
+layer_augmented_train_dataset = (
+    train_dataset
+    .shuffle(batch_size*100)
+    .batch(batch_size)
+    .map(lambda x, y: (data_augmentation(x), y), num_parallel_calls=tf.data.AUTOTUNE)
+    .prefetch(tf.data.AUTOTUNE)
+)
+
+train_dataset = (
+    train_dataset
+    .shuffle(batch_size*100)
+    .batch(batch_size)
+)
+
+best_generator_augmented_model = train_model(model, generator_augmented_train_dataset,
+                                             steps_per_epoch=True)
+best_layer_augmented_model = train_model(model, layer_augmented_train_dataset)
+best_base_model = train_model(model, train_dataset)
 
 # evaluate test data
-print("[INFO] evaluating test data for non-augmented model...")
-predictions = best_model.predict(x_test, batch_size=batch_size)
+print("[INFO] evaluating test data for generator-augmented model...")
+predictions = best_generator_augmented_model.predict(x_test, batch_size=batch_size)
 class_report=classification_report(y_test.argmax(axis=1), predictions.argmax(axis=1), target_names=classNames)
 print(class_report)
 print("Confusion matrix")
@@ -281,8 +286,17 @@ con_mat=confusion_matrix(np.argmax(y_test, axis=1), predictions.argmax(axis=1))
 print(con_mat)
 
 
-print("[INFO] evaluating test data for augmented model...")
-predictions = best_augmented_model.predict(x_test, batch_size=batch_size)
+print("[INFO] evaluating test data for layer-augmented model...")
+predictions = best_layer_augmented_model.predict(x_test, batch_size=batch_size)
+class_report=classification_report(y_test.argmax(axis=1), predictions.argmax(axis=1), target_names=classNames)
+print(class_report)
+print("Confusion matrix")
+print(classNames)
+con_mat=confusion_matrix(np.argmax(y_test, axis=1), predictions.argmax(axis=1))
+print(con_mat)
+
+print("[INFO] evaluating test data for base model...")
+predictions = best_base_model.predict(x_test, batch_size=batch_size)
 class_report=classification_report(y_test.argmax(axis=1), predictions.argmax(axis=1), target_names=classNames)
 print(class_report)
 print("Confusion matrix")
