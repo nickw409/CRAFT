@@ -7,5 +7,6 @@
 # Not needed for development
 Testing/
 
-# Macos junk
+# Junk
 .DS_Store
+.vscode
