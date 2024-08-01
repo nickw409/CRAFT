@@ -12,7 +12,7 @@ import os
 import argparse
 from random import shuffle
 
-from craft.datasets.tusayan_whiteware import create_data_arrays_list
+import craft.datasets.tusayan_whiteware as tusayan_whiteware
 
 
 def step_decay(epoch):
@@ -32,6 +32,7 @@ def step_decay(epoch):
     else:
         alpha=initAlpha*0.05
     return float(alpha)
+
 
 
 def train_model(model, train_dataset, steps_per_epoch=False):   
@@ -97,53 +98,25 @@ def train_model(model, train_dataset, steps_per_epoch=False):
 
 # Arg parser for set number
 ap = argparse.ArgumentParser()
-ap.add_argument("-s", "--set", required=True,
-	help="integer index of sherd train/test set")
+ap.add_argument("-s", "--set", required=True, 
+  help="integer index of sherd train/test set")
 args = vars(ap.parse_args())
 
-set_number=str(args["set"])
-set_directory= os.getcwd() + "/image_data"
+set_number = str(args["set"])
 images_dir = os.getcwd() + "/image_data"
 num_classes = 7
 image_dimension = 224
 batch_size = 32
 epochs_head = 10
 epochs = 50
-l2_constant=0.02
+l2_constant = 0.02
 input = keras.Input(shape=(image_dimension, image_dimension, 3))
 
-#Define directories to use based on set number for loading data, saving data
-train_dataset = set_directory + "/Set_" + set_number +"/train_" + set_number + ".csv"
-test_dataset = set_directory + "/Set_" + set_number +"/test_" + set_number + ".csv"
-models_dir = set_directory +"/Set_" + set_number +"/models"
+models_dir = os.getcwd() + "/image_data" + "/Set_" + set_number + "/models"
 
-# Get lists of train images, types from file
-print("[INFO] loading images...")
-with open(train_dataset, 'r') as read_obj:
-    # pass the file object to reader() to get the reader object
-    csv_reader = reader(read_obj)
-    # Pass reader object to list() to get a list of lists
-    train_data_list = list(csv_reader)
+(train_data,train_labels) = tusayan_whiteware.load_data(set_number, image_dimension, verbose=250)
 
-# close file
-read_obj.close()
-
-# randomize order of images
-shuffle(train_data_list)
-
-# same for test images, types
-with open(test_dataset, 'r') as read_obj:
-    # pass the file object to reader() to get the reader object
-    csv_reader = reader(read_obj)
-    # Pass reader object to list() to get a list of lists
-    test_data_list = list(csv_reader)
-
-
-read_obj.close()
-
-(train_data,train_labels)=create_data_arrays_list(train_data_list,image_dimension, verbose=250)
-
-(test_data,test_labels)=create_data_arrays_list(test_data_list,image_dimension,verbose=250)
+(test_data,test_labels) = tusayan_whiteware.load_data(set_number, image_dimension,verbose=250)
 
 # Set classNames from train_labels list, rename to eliminate numbers from the front
 classNames = [str(x) for x in np.unique(train_labels)]
