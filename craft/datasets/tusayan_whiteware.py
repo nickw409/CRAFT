@@ -1,40 +1,46 @@
 import cv2
-from csv import reader
+import csv
 import keras
 import numpy as np
 import os
+from pathlib import Path
 
 
-def load_data(set_number, image_dimension, verbose=-1):
-  # Location of set csv files
-  set_directory = os.getcwd() + "../../image_data"
-  #Define directories to use based on set number for loading data, saving data
-  train_dataset = set_directory + "/Set_" + set_number +"/train_" + set_number + ".csv"
-  test_dataset = set_directory + "/Set_" + set_number +"/test_" + set_number + ".csv"
+def load_data(training_split, image_dimension, verbose=-1):
+  """
+  Args:
+    training_split: a tuple (training, validation, testing) which takes in
+    doubles in the range 0.0-1.0. Must add up to 1.0
+  """
   # initialize the list of features and labels
   data = []
   labels = []
   i=0
 
-  # Get lists of train images, types from file
-  print("[INFO] loading images...")
-  with open(train_dataset, 'r') as read_obj:
-      # pass the file object to reader() to get the reader object
-      csv_reader = reader(read_obj)
-      # Pass reader object to list() to get a list of lists
-      train_data_list = list(csv_reader)
+  imagelist_path = Path('.').resolve()
+  imagelist_path = imagelist_path.parents[1] / 'image_data' / 'image_list.csv'
+  images_dir = imagelist_path.parent / 'images'
+  print(imagelist_path)
+  print(images_dir)
 
-  # close file
-  read_obj.close()
-
-    # same for test images, types
-  with open(test_dataset, 'r') as read_obj:
-      # pass the file object to reader() to get the reader object
-      csv_reader = reader(read_obj)
-      # Pass reader object to list() to get a list of lists
-      test_data_list = list(csv_reader)
-
-  read_obj.close()
+  try:
+    with open(imagelist_path, 'r') as csv_file:
+      for row in csv.reader(csv_file):
+        # Load image 
+        image = cv2.imread(images_dir / row[0])
+        # resize image, convert image to grayscale, then back to original color scheme
+        image = cv2.cvtColor(
+            cv2.cvtColor(
+              cv2.resize(image, (image_dimension, image_dimension),
+                interpolation=cv2.INTER_AREA),
+              cv2.COLOR_BGR2GRAY),
+            cv2.COLOR_GRAY2BGR)
+        # Convert image to keras array format
+        image=keras.utils.img_to_array(image)
+        data.append(image)
+        labels.append(row[1])
+  except IOError as e:
+    print(f"Error reading file {imagelist_path}: {e}")
 
   # loop over the input images
   for image_input in imageData:
@@ -79,4 +85,3 @@ def load_data(set_number, image_dimension, verbose=-1):
   return (np.array(data), np.array(labels))
 
 
-def get_images()

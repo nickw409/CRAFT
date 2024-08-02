@@ -2,16 +2,66 @@ import csv
 import os
 from pathlib import Path
 import re
+import shutil
 import sys
 
 
+def categorize_images(image_list, dir_name):
+  """
+  Args:
+    image_list: Path to the csv file containing image list information.
+    dir_name: String of the desired name to give to parent directory where 
+    images are stored.
+  """
+  image_dict = {}
+  images_dir = Path('.').resolve().parents[1] / 'image_data' / 'images'
+  dir = images_dir.parents[0] / dir_name
+  if not dir.exists():
+    dir.mkdir()
+
+  if read_csv(image_list, image_dict):
+    for (image_name, label) in image_dict.items():
+      match label:
+        case 'Kanaa':
+          categorized_image_dir = dir / 'Kanaa'
+          if not categorized_image_dir.exists():
+            categorized_image_dir.mkdir()
+          shutil.copy(images_dir / image_name, categorized_image_dir / image_name)
+        case 'Black_Mesa':
+          categorized_image_dir = dir / 'Black_Mesa'
+          if not categorized_image_dir.exists():
+            categorized_image_dir.mkdir()
+          shutil.copy(images_dir / image_name, categorized_image_dir / image_name)
+        case 'Sosi':
+          categorized_image_dir = dir / 'Sosi'
+          if not categorized_image_dir.exists():
+            categorized_image_dir.mkdir()
+          shutil.copy(images_dir / image_name, categorized_image_dir / image_name)
+        case 'Dogoszhi':
+          categorized_image_dir = dir / 'Dogoszhi'
+          if not categorized_image_dir.exists():
+            categorized_image_dir.mkdir()
+          shutil.copy(images_dir / image_name, categorized_image_dir / image_name)
+        case 'Flagstaff':
+          categorized_image_dir = dir / 'Flagstaff'
+          if not categorized_image_dir.exists():
+            categorized_image_dir.mkdir()
+          shutil.copy(images_dir / image_name, categorized_image_dir / image_name)
+        case 'Tusayan':
+          categorized_image_dir = dir / 'Tusayan'
+          if not categorized_image_dir.exists():
+            categorized_image_dir.mkdir()
+          shutil.copy(images_dir / image_name, categorized_image_dir / image_name)
+        case 'Kayenta':
+          categorized_image_dir = dir / 'Kayenta'
+          if not categorized_image_dir.exists():
+            categorized_image_dir.mkdir()
+          shutil.copy(images_dir / image_name, categorized_image_dir / image_name)
+
+
 def consolidate_image_data(image_dir):
-  # find image data csv files (done)
-  # read all data into dictionary so no duplicates (done)
-  # keeping adding to dictionary until all files are read (done)
-  # for now write all pairs to new csv file (done)
   # go through dictionary key by key and search for image that matches
-  # copy that image into either training, validation, or testing based in desired split
+  # copy that image into either training, validation, or testing based on desired split
   # add key pair to new csv file in each dir depending on where it is placed
   # maintain proper ratios until all files have been copied
   
@@ -56,6 +106,5 @@ def read_csv(file_path, data_dict):
     return False
 
 
-curr_path = Path('.').resolve()
-success = consolidate_image_data(curr_path.parents[1] / 'image_data')
-print(success)
+image_list = Path('.').resolve().parents[1] / 'image_data' / 'image_list.csv'
+categorize_images(image_list, 'tusayan_whiteware')
