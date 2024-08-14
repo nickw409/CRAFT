@@ -59,12 +59,16 @@ def categorize_images(image_list, dir_name):
           shutil.copy(images_dir / image_name, categorized_image_dir / image_name)
 
 
-def consolidate_image_data(image_dir):
-  # go through dictionary key by key and search for image that matches
-  # copy that image into either training, validation, or testing based on desired split
-  # add key pair to new csv file in each dir depending on where it is placed
-  # maintain proper ratios until all files have been copied
-  
+def consolidate_image_data(image_dir): 
+  """
+  Image data was originally split into set directories for cross-fold 
+  validation. Labels were stored in csv files for each set along with the file
+  name of the image. This function goes through every set directory and copies
+  the image file names and labels to a main csv file that contains all data.
+
+  Args:
+    image_dir: Full path to the image directory.  
+  """
   # Search all subdirectories for directories named Set_
   set_pattern = "Set_"
   filetype_pattern = ".csv"
@@ -95,6 +99,12 @@ def consolidate_image_data(image_dir):
 
 
 def read_csv(file_path, data_dict):
+  """
+  Read in csv file data into dictionary.
+  Args: 
+    file_path: Full path to csv file.
+    data_dict: Python dictionary to hold data.
+  """
   try:
     with open(file_path, 'r') as csv_file:
       for row in csv.reader(csv_file):
