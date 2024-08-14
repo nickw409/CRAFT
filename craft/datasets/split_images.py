@@ -88,7 +88,7 @@ def consolidate_image_data(image_dir):
         print(row)
         csv_writer.writerow(row)
     csv_file.close()
-  except IOError:
+  except IOError as e:
     sys.stderr.write(f"Error opening {filename} for writing\n {e}")
     return False
   return True
