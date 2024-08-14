@@ -106,5 +106,7 @@ def read_csv(file_path, data_dict):
     return False
 
 
+image_dir = Path('.').resolve().parents[1] / 'image_data'
+consolidate_image_data(image_dir)
 image_list = Path('.').resolve().parents[1] / 'image_data' / 'image_list.csv'
 categorize_images(image_list, 'tusayan_whiteware')
