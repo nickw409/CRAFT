@@ -33,8 +33,6 @@ def create_training_test_sets(image_dir, training_split):
   """
   image_count = [0] * 7
   training_image_count = [0] * 7
-  total_images = 0
-  total_training_images = 0
   data_dict = split_images.consolidate_image_data(image_dir)
   training_set_filename = image_dir / 'training_list.csv'
   test_set_filename = image_dir / 'test_list.csv'
@@ -42,10 +40,9 @@ def create_training_test_sets(image_dir, training_split):
   # Get the number of sherds per type 
   for val in data_dict.values():
     image_count[SherdType[val].value] += 1
-    total_images += 1
   
   # Shuffle dictionary keys to create shuffled training and testing sets
-  keys = data_dict.keys()
+  keys = list(data_dict.keys())
   random.shuffle(keys)
   # Open csv files for writing
   try:
@@ -59,11 +56,14 @@ def create_training_test_sets(image_dir, training_split):
         # If current ratio less than training split add image to training set
         if training_image_count[idx] / image_count[idx] < training_split:
           training_writer.writerow([key, label])
+          training_image_count[idx] += 1
         else:
           test_writer.writerow([key, label])
   except IOError as e:
     sys.stderr.write(f"Error opening file for writing\n {e}")
     return False
+  
+  split_images.categorize_images(image_dir, 'tusayan_whiteware')
   return True
 
 
@@ -145,4 +145,5 @@ def load_data(training_split, image_dimension, verbose=-1):
   # return image array data, labels
   return (np.array(data), np.array(labels))
 
-
+image_dir = Path('.').resolve().parents[1] / 'image_data'
+create_training_test_sets(image_dir, 0.8)

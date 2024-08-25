@@ -6,47 +6,39 @@ import shutil
 import sys
 
 
-def categorize_images(image_list, dir_name):
+def categorize_images(image_dir, dir_name):
   """
   Args:
-    image_list: Path to the csv file containing image list information.
+    image_dir: Full path to the image directory.
     dir_name: String of the desired name to give to parent directory where 
     images are stored.
   """
-  image_dict = {}
-  images_dir = Path('.').resolve().parents[1] / 'image_data' / 'images'
-  dir = images_dir.parents[0] / dir_name
-  training_dir = dir / 'Training'
-  test_dir = dir / 'Testing'
-  if not dir.exists():
-    dir.mkdir()
+  images_dir = image_dir / 'images'
+  categorized_dir = image_dir / dir_name
+  training_dir = categorized_dir / 'Training'
+  test_dir = categorized_dir / 'Testing'
+  if not categorized_dir.exists():
+    categorized_dir.mkdir()
   if not training_dir.exists():
     training_dir.mkdir()
   if not test_dir.exists():
     test_dir.mkdir()
+  
+  # Find csv files for training and testing dynamically
+  files = os.listdir(image_dir)
 
-  if read_csv(image_list, image_dict):
-    for (image_name, label) in image_dict.items():
-      match label:
-        case 'Kanaa':
-          sherd_type = 'Kanaa'
-        case 'Black_Mesa':
-          sherd_type = 'Black_Mesa'
-        case 'Sosi':
-          sherd_type = 'Sosi'
-        case 'Dogoszhi':
-          sherd_type = 'Dogoszhi'
-        case 'Flagstaff':
-          sherd_type = 'Flagstaff'
-        case 'Tusayan':
-          sherd_type = 'Tusayan'
-        case 'Kayenta':
-          sherd_type = 'Kayenta'
-      
-      categorized_image_dir = dir / sherd_type
-      if not categorized_image_dir.exists():
-        categorized_image_dir.mkdir()
-      shutil.copy(images_dir / image_name, categorized_image_dir / image_name)
+  # Copy all training images into training dir
+  for file in files:
+    training_match = re.search('training', file)
+    test_match = re.search('test', file)
+    if training_match:
+      training_list = image_dir / training_match.string
+      copy_images(training_list, images_dir, training_dir)
+    # Copy all test images into test dir
+    if test_match:
+      test_list = image_dir / test_match.string
+      copy_images(test_list, images_dir, test_dir)
+
 
 
 def consolidate_image_data(image_dir): 
@@ -65,7 +57,6 @@ def consolidate_image_data(image_dir):
   set_pattern = "Set_"
   filetype_pattern = ".csv"
   data_dict = {}
-  print(image_dir)
 
   for (dir, subdirs, files) in os.walk(image_dir):
     match = re.search(set_pattern, dir)
@@ -88,6 +79,16 @@ def consolidate_image_data(image_dir):
   return data_dict
 
 
+def copy_images(image_list, source, destination):
+  data_dict = {}
+  read_csv(image_list, data_dict)
+  for (image_name, label) in data_dict.items():      
+    categorized_image_dir = destination / label
+    if not categorized_image_dir.exists():
+      categorized_image_dir.mkdir()
+    shutil.copy(source / image_name, categorized_image_dir / image_name)
+  
+
 def read_csv(file_path, data_dict):
   """
   Read in csv file data into dictionary.
@@ -103,9 +104,3 @@ def read_csv(file_path, data_dict):
   except IOError as e:
     sys.stderr.write(f"Error opening {file_path} for reading\n {e}")
     return False
-
-
-image_dir = Path('.').resolve().parents[1] / 'image_data'
-consolidate_image_data(image_dir)
-#image_list = Path('.').resolve().parents[1] / 'image_data' / 'image_list.csv'
-#categorize_images(image_list, 'tusayan_whiteware')
