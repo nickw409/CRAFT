@@ -16,47 +16,37 @@ def categorize_images(image_list, dir_name):
   image_dict = {}
   images_dir = Path('.').resolve().parents[1] / 'image_data' / 'images'
   dir = images_dir.parents[0] / dir_name
+  training_dir = dir / 'Training'
+  test_dir = dir / 'Testing'
   if not dir.exists():
     dir.mkdir()
+  if not training_dir.exists():
+    training_dir.mkdir()
+  if not test_dir.exists():
+    test_dir.mkdir()
 
   if read_csv(image_list, image_dict):
     for (image_name, label) in image_dict.items():
       match label:
         case 'Kanaa':
-          categorized_image_dir = dir / 'Kanaa'
-          if not categorized_image_dir.exists():
-            categorized_image_dir.mkdir()
-          shutil.copy(images_dir / image_name, categorized_image_dir / image_name)
+          sherd_type = 'Kanaa'
         case 'Black_Mesa':
-          categorized_image_dir = dir / 'Black_Mesa'
-          if not categorized_image_dir.exists():
-            categorized_image_dir.mkdir()
-          shutil.copy(images_dir / image_name, categorized_image_dir / image_name)
+          sherd_type = 'Black_Mesa'
         case 'Sosi':
-          categorized_image_dir = dir / 'Sosi'
-          if not categorized_image_dir.exists():
-            categorized_image_dir.mkdir()
-          shutil.copy(images_dir / image_name, categorized_image_dir / image_name)
+          sherd_type = 'Sosi'
         case 'Dogoszhi':
-          categorized_image_dir = dir / 'Dogoszhi'
-          if not categorized_image_dir.exists():
-            categorized_image_dir.mkdir()
-          shutil.copy(images_dir / image_name, categorized_image_dir / image_name)
+          sherd_type = 'Dogoszhi'
         case 'Flagstaff':
-          categorized_image_dir = dir / 'Flagstaff'
-          if not categorized_image_dir.exists():
-            categorized_image_dir.mkdir()
-          shutil.copy(images_dir / image_name, categorized_image_dir / image_name)
+          sherd_type = 'Flagstaff'
         case 'Tusayan':
-          categorized_image_dir = dir / 'Tusayan'
-          if not categorized_image_dir.exists():
-            categorized_image_dir.mkdir()
-          shutil.copy(images_dir / image_name, categorized_image_dir / image_name)
+          sherd_type = 'Tusayan'
         case 'Kayenta':
-          categorized_image_dir = dir / 'Kayenta'
-          if not categorized_image_dir.exists():
-            categorized_image_dir.mkdir()
-          shutil.copy(images_dir / image_name, categorized_image_dir / image_name)
+          sherd_type = 'Kayenta'
+      
+      categorized_image_dir = dir / sherd_type
+      if not categorized_image_dir.exists():
+        categorized_image_dir.mkdir()
+      shutil.copy(images_dir / image_name, categorized_image_dir / image_name)
 
 
 def consolidate_image_data(image_dir): 
@@ -96,6 +86,23 @@ def consolidate_image_data(image_dir):
     sys.stderr.write(f"Error opening {filename} for writing\n {e}")
     return False
   return True
+
+
+def categorize_test_set(image_list, directory):
+  """
+  Since the training data we have for each class is disproportionate, we need to
+  ensure that the testing set contains the same ratio of classes as found in the
+  full image set.
+
+  Args:
+    image_list: Full path to the csv file returned from consolidate_image_data.
+    directory: Full path of directory  
+  """
+  return False
+
+
+def categorize_training_set(image_list, directory):
+  return False
 
 
 def read_csv(file_path, data_dict):
