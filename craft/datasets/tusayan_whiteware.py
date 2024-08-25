@@ -67,7 +67,7 @@ def create_training_test_sets(image_dir, training_split):
   return True
 
 
-def load_data(training_split, image_dimension, verbose=-1):
+def load_data(image_dimension, training_split, verbose=-1):
   """
   Args:
     training_split: a tuple (training, validation, testing) which takes in
