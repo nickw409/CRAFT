@@ -58,6 +58,8 @@ def consolidate_image_data(image_dir):
 
   Args:
     image_dir: Full path to the image directory.  
+  Returns:
+    A dictionary containing every image file name and corresponding label
   """
   # Search all subdirectories for directories named Set_
   set_pattern = "Set_"
@@ -79,30 +81,11 @@ def consolidate_image_data(image_dir):
     with open(full_imagelist_path, 'w') as csv_file:
       csv_writer = csv.writer(csv_file)
       for row in data_dict.items():
-        print(row)
         csv_writer.writerow(row)
-    csv_file.close()
   except IOError as e:
     sys.stderr.write(f"Error opening {filename} for writing\n {e}")
     return False
-  return True
-
-
-def categorize_test_set(image_list, directory):
-  """
-  Since the training data we have for each class is disproportionate, we need to
-  ensure that the testing set contains the same ratio of classes as found in the
-  full image set.
-
-  Args:
-    image_list: Full path to the csv file returned from consolidate_image_data.
-    directory: Full path of directory  
-  """
-  return False
-
-
-def categorize_training_set(image_list, directory):
-  return False
+  return data_dict
 
 
 def read_csv(file_path, data_dict):
@@ -116,7 +99,6 @@ def read_csv(file_path, data_dict):
     with open(file_path, 'r') as csv_file:
       for row in csv.reader(csv_file):
         data_dict[row[0]] = row[1]
-    csv_file.close()
     return True
   except IOError as e:
     sys.stderr.write(f"Error opening {file_path} for reading\n {e}")
@@ -125,5 +107,5 @@ def read_csv(file_path, data_dict):
 
 image_dir = Path('.').resolve().parents[1] / 'image_data'
 consolidate_image_data(image_dir)
-image_list = Path('.').resolve().parents[1] / 'image_data' / 'image_list.csv'
-categorize_images(image_list, 'tusayan_whiteware')
+#image_list = Path('.').resolve().parents[1] / 'image_data' / 'image_list.csv'
+#categorize_images(image_list, 'tusayan_whiteware')

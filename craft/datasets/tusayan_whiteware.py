@@ -1,9 +1,70 @@
 import cv2
 import csv
+from enum import Enum
 import keras
 import numpy as np
 import os
 from pathlib import Path
+import random
+import sys
+
+import split_images
+
+
+class SherdType(Enum):
+  Kanaa = 0
+  Black_Mesa = 1
+  Sosi = 2
+  Dogoszhi = 3
+  Flagstaff = 4
+  Tusayan = 5
+  Kayenta = 6
+
+
+def create_training_test_sets(image_dir, training_split):
+  """
+  Since the training data we have for each class is disproportionate, we need to
+  ensure that the testing set contains the same ratio of classes as found in the
+  full image set.
+
+  Args:
+    image_dir: Full path to the image directory.
+    training_split: floating point of percentage of data to use for training
+  """
+  image_count = [0] * 7
+  training_image_count = [0] * 7
+  total_images = 0
+  total_training_images = 0
+  data_dict = split_images.consolidate_image_data(image_dir)
+  training_set_filename = image_dir / 'training_list.csv'
+  test_set_filename = image_dir / 'test_list.csv'
+
+  # Get the number of sherds per type 
+  for val in data_dict.values():
+    image_count[SherdType[val].value] += 1
+    total_images += 1
+  
+  # Shuffle dictionary keys to create shuffled training and testing sets
+  keys = data_dict.keys()
+  random.shuffle(keys)
+  # Open csv files for writing
+  try:
+    with open(training_set_filename, 'w') as training_csv, open(test_set_filename, 'w') as test_csv:
+      training_writer = csv.writer(training_csv)
+      test_writer = csv.writer(test_csv)
+      # Loop through dictionary using shuffled keys
+      for key in keys:
+        label = data_dict[key]
+        idx = SherdType[label].value
+        # If current ratio less than training split add image to training set
+        if training_image_count[idx] / image_count[idx] < training_split:
+          training_writer.writerow([key, label])
+        else:
+          test_writer.writerow([key, label])
+  except IOError as e:
+    sys.stderr.write(f"Error opening file for writing\n {e}")
+    return False
+  return True
 
 
 def load_data(training_split, image_dimension, verbose=-1):
