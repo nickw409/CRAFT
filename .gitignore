@@ -3,7 +3,7 @@
 __pycache__
 
 # Too big to fit on Github
-/image_data
+image_data/
 
 # Not needed for development
 Testing/
