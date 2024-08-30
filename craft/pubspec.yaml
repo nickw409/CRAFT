@@ -1,0 +1,33 @@
+name: craft
+description: Ceramic Sherd Classifier.
+publish_to: 'none'
+version: 0.1.0
+
+environment:
+  sdk: '>=3.0.6 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  geolocator: ^11.0.0
+  google_maps_flutter: ^2.6.0
+  image_cropper: ^5.0.1
+  image_picker: ^1.0.7
+  page_transition: ^2.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  assets:
+    - images/
+  uses-material-design: true
+  fonts: 
+    - family: Uber
+      fonts:
+        - asset: fonts/UberMoveBold.otf
+          weight: 700
+        - asset: fonts/UberMoveMedium.otf
+          weight: 500
