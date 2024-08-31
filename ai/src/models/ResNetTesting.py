@@ -12,7 +12,7 @@ import os
 import argparse
 from random import shuffle
 
-import craft.datasets.tusayan_whiteware as tusayan_whiteware
+import src.datasets.tusayan_whiteware as tusayan_whiteware
 
 
 def step_decay(epoch):

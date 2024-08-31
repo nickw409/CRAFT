@@ -7,8 +7,14 @@ import os
 from pathlib import Path
 import random
 import sys
+import time
 
 import split_images
+try:
+  sys.path.append(str(Path('.').resolve().parent))
+  from misc.progress_bar import printProgressBar
+except Exception as e:
+  print(e)
 
 
 class SherdType(Enum):
@@ -42,6 +48,7 @@ def create_training_test_sets(image_dir, training_split):
     image_count[SherdType[val].value] += 1
   
   # Shuffle dictionary keys to create shuffled training and testing sets
+  print(f'Shuffling dictionary keys')
   keys = list(data_dict.keys())
   random.shuffle(keys)
   # Open csv files for writing
@@ -49,16 +56,23 @@ def create_training_test_sets(image_dir, training_split):
     with open(training_set_filename, 'w') as training_csv, open(test_set_filename, 'w') as test_csv:
       training_writer = csv.writer(training_csv)
       test_writer = csv.writer(test_csv)
+      rows_written = 0
       # Loop through dictionary using shuffled keys
       for key in keys:
         label = data_dict[key]
         idx = SherdType[label].value
+        rows_written += 1
         # If current ratio less than training split add image to training set
         if training_image_count[idx] / image_count[idx] < training_split:
           training_writer.writerow([key, label])
           training_image_count[idx] += 1
         else:
           test_writer.writerow([key, label])
+        if rows_written % 70 == 0:
+          printProgressBar(rows_written, len(keys), 'Progress', 'Complete', length=50)
+          time.sleep(0.1)
+      printProgressBar(len(keys), len(keys), 'Progress', 'Complete', length=50)
+          
   except IOError as e:
     sys.stderr.write(f"Error opening file for writing\n {e}")
     return False
