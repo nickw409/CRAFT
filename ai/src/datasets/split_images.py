@@ -15,7 +15,7 @@ except Exception as e:
 
 def categorize_images(image_dir, dir_name):
   """
-  Args:
+  @params
     image_dir: Full path to the image directory.
     dir_name: String of the desired name to give to parent directory where 
     images are stored.
@@ -25,15 +25,21 @@ def categorize_images(image_dir, dir_name):
   categorized_dir = image_dir / dir_name
   training_dir = categorized_dir / 'Training'
   test_dir = categorized_dir / 'Testing'
-  if not categorized_dir.exists():
-    print(f'Creating {categorized_dir}')
-    categorized_dir.mkdir()
-  if not training_dir.exists():
-    print(f'Creating {training_dir}')
-    training_dir.mkdir()
-  if not test_dir.exists():
-    print(f'Creating {test_dir}')
-    test_dir.mkdir()
+  if categorized_dir.exists():
+    shutil.rmtree(categorized_dir)
+    print(f'Removing old {categorized_dir}')
+  print(f'Creating {categorized_dir}')
+  categorized_dir.mkdir()
+  if training_dir.exists():
+    shutil.rmtree(training_dir)
+    print(f'Removing old {training_dir}')
+  print(f'Creating {training_dir}')
+  training_dir.mkdir()
+  if test_dir.exists():
+    shutil.rmtree(test_dir)
+    print(f'Removing old {test_dir}')
+  print(f'Creating {test_dir}')
+  test_dir.mkdir()
   
   # Find csv files for training and testing dynamically
   files = os.listdir(image_dir)

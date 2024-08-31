@@ -7,12 +7,13 @@ import os
 from pathlib import Path
 import random
 import sys
+import tensorflow
 import time
 
-import split_images
 try:
   sys.path.append(str(Path('.').resolve().parent))
   from misc.progress_bar import printProgressBar
+  import split_images
 except Exception as e:
   print(e)
 
@@ -33,7 +34,7 @@ def create_training_test_sets(image_dir, training_split):
   ensure that the testing set contains the same ratio of classes as found in the
   full image set.
 
-  Args:
+  @params:
     image_dir: Full path to the image directory.
     training_split: floating point of percentage of data to use for training
   """
@@ -81,83 +82,98 @@ def create_training_test_sets(image_dir, training_split):
   return True
 
 
-def load_data(image_dimension, training_split, verbose=-1):
+def load_data(image_dimension, training_split, batch_size=32):
   """
-  Args:
+  @params:
+    image_dimension: a tuple containing the size to resize images (height, width)
     training_split: a tuple (training, validation, testing) which takes in
     doubles in the range 0.0-1.0. Must add up to 1.0
+    batch_size: (int) size of batches of data, default 32
+  @returns:
+    A tuple of datasets
   """
   # initialize the list of features and labels
   data = []
   labels = []
   i=0
+  # Try to replace with [label.name for label in SherdType]
+  class_names = [
+    'Kanaa',
+    'Black_Mesa',
+    'Sosi',
+    'Dogoszhi',
+    'Flagstaff',
+    'Tusayan',
+    'Kayenta'
+  ]
+  train_split = training_split[0]
+  val_split = training_split[1]
+  test_split = training_split[2]
 
-  imagelist_path = Path('.').resolve()
-  imagelist_path = imagelist_path.parents[1] / 'image_data' / 'image_list.csv'
+  imagelist_path = Path('.').resolve().parents[1] / 'image_data' / 'image_list.csv'
   images_dir = imagelist_path.parent / 'images'
+  tusayan_ww_path = imagelist_path.parent / 'tusayan_whiteware'
   print(imagelist_path)
   print(images_dir)
 
-  try:
-    with open(imagelist_path, 'r') as csv_file:
-      for row in csv.reader(csv_file):
-        # Load image 
-        image = cv2.imread(images_dir / row[0])
-        # resize image, convert image to grayscale, then back to original color scheme
-        image = cv2.cvtColor(
-            cv2.cvtColor(
-              cv2.resize(image, (image_dimension, image_dimension),
-                interpolation=cv2.INTER_AREA),
-              cv2.COLOR_BGR2GRAY),
-            cv2.COLOR_GRAY2BGR)
-        # Convert image to keras array format
-        image=keras.utils.img_to_array(image)
-        data.append(image)
-        labels.append(row[1])
-  except IOError as e:
-    print(f"Error reading file {imagelist_path}: {e}")
+  if not tusayan_ww_path.exists():
+    # Create both sets
+    print(f'Creating training and test sets')
+    create_training_test_sets(imagelist_path.parent, train_split + val_split)
+  # Load dataset from directory
+  if val_split != 0.0:
+    print(f'Loading Training and Validation datasets')
+    train_ds, val_ds = keras.utils.image_dataset_from_directory(
+      directory=str(tusayan_ww_path / 'Training'),
+      labels='inferred',
+      label_mode='categorical',
+      class_names=[label.name for label in SherdType],
+      #color_mode='grayscale',
+      batch_size=batch_size,
+      image_size=image_dimension,
+      seed=random.randint(1, 999999),
+      validation_split=val_split,
+      subset='both',
+      interpolation='area'
+    )
+    #for image in val_ds.as_numpy_iterator():
+    #  print(image)
+    #  image = cv2.cvtColor(cv2.cvtColor(image, cv2.COLOR_BGR2GRAY), cv2.COLOR_GRAY2BGR)
+  else:
+    print(f'Loading Training dataset')
+    train_ds = keras.utils.image_dataset_from_directory(
+      directory=str(tusayan_ww_path / 'Training'),
+      labels='inferred',
+      label_mode='categorical',
+      class_names=[label.name for label in SherdType],
+      #color_mode='grayscale',
+      batch_size=batch_size,
+      image_size=image_dimension,
+      seed=random.randint(1, 999999),
+      validation_split=None,
+      subset=None,
+      interpolation='area'
+    )
+  #for image in train_ds.as_numpy_iterator():
+  #  image = cv2.cvtColor(cv2.cvtColor(image, cv2.COLOR_BGR2GRAY), cv2.COLOR_GRAY2BGR)
+  print(f'Loading Test dataset')
+  test_ds = keras.utils.image_dataset_from_directory(
+    directory=str(tusayan_ww_path / 'Testing'),
+    labels='inferred',
+    label_mode='categorical',
+    class_names=[label.name for label in SherdType],
+    #color_mode='grayscale',
+    batch_size=batch_size,
+    image_size=image_dimension,
+    seed=random.randint(1, 999999),
+    validation_split=None,
+    subset=None,
+    interpolation='area'
+  )
+  #for image in test_ds.as_numpy_iterator():
+  #  image = cv2.cvtColor(cv2.cvtColor(image, cv2.COLOR_BGR2GRAY), cv2.COLOR_GRAY2BGR)
 
-  # loop over the input images
-  for image_input in imageData:
-      # load the image
-      images_dir = os.getcwd() + "../../image_data/images/"
-      image = cv2.imread(images_dir + image_input[0][:])
-      
-
-      
-      #image = cv2.convertScaleAbs(image, alpha=alpha, beta=beta)
-
-
-      # resize image, convert image to grayscale, then back to original color scheme
-      image = cv2.cvtColor(cv2.cvtColor(cv2.resize(image, (image_dimension, image_dimension),
-          interpolation=cv2.INTER_AREA),cv2.COLOR_BGR2GRAY),cv2.COLOR_GRAY2BGR)
-      
-      #convert image into array format using Keras function
-      image=keras.utils.img_to_array(image)
-
-      #add image data to array
-      data.append(image)
-      
-      #Change label names so that class numbers will correspond to chronological sequence; class names changed back further on
-      if image_input[:][1] == 'Kanaa': append_label='00'+'Kanaa'
-      elif image_input[:][1] == 'Black_Mesa': append_label='01'+'Black_Mesa'
-      elif image_input[:][1] == 'Sosi': append_label='02'+'Sosi'
-      elif image_input[:][1] == 'Dogoszhi': append_label='03'+'Dogoszhi'
-      elif image_input[:][1] == 'Flagstaff': append_label='04'+'Flagstaff'
-      elif image_input[:][1] == 'Tusayan': append_label='05'+'Tusayan'
-      else: append_label='06'+'Kayenta'
-      
-      #write label name
-      labels.append(append_label)
-
-      # show an update every `verbose` images
-      if verbose > 0 and i > 0 and (i + 1) % verbose == 0:
-          print("[INFO] processed {}/{}".format(i + 1,
-          len(imageData)))
-      i=i+1
-
-  # return image array data, labels
-  return (np.array(data), np.array(labels))
-
-image_dir = Path('.').resolve().parents[1] / 'image_data'
-create_training_test_sets(image_dir, 0.8)
+  if val_split != 0.0:
+    return (train_ds, val_ds, test_ds)
+  else:
+    return (train_ds, test_ds)
