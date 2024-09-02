@@ -74,11 +74,16 @@ def train_model(model, train_dataset, val_dataset):
     print("Model Compiled")
 
     full_model_path = Path('.').resolve() / 'trained_models' / ("ResNet152V2" + ".keras")
+    log_path = Path('.').resolve() / 'logs'
+    if not log_path.exists():
+        log_path.mkdir()
+    tensorboard = keras.callbacks.TensorBoard(log_dir=str(log_path))
     callbacks=[keras.callbacks.LearningRateScheduler(step_decay),
                keras.callbacks.ModelCheckpoint(full_model_path, monitor="val_accuracy",
                                                verbose=1, save_best_only=True,
                                                save_weights_only=False, mode="max",
                                                save_freq="epoch"),
+                tensorboard
                 ]
 
     print("Fine-Tuning Final Model...")
@@ -108,11 +113,6 @@ input = keras.Input(shape=(image_dimension, image_dimension, 3))
 train_ds = train_ds.map(preprocess)
 #val_ds = val_ds.map(preprocess)
 test_ds = test_ds.map(preprocess)
-
-x_test = test_ds.map(lambda x, y: x)
-y_test = test_ds.map(lambda x, y: y)
-print(x_test)
-print(y_test)
 
 # Create base model of ResNet
 baseModel = ResNet152V2(weights="imagenet", include_top=False, 
