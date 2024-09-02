@@ -9,12 +9,10 @@ import cv2
 from csv import reader
 import matplotlib.pyplot as plt
 import os
-import argparse
 from random import shuffle
 from pathlib import Path
 import sys
 
-#import src.datasets.tusayan_whiteware as tusayan_whiteware
 try:
   sys.path.append(str(Path('.').resolve().parent))
   import datasets.tusayan_whiteware as tusayan_whiteware
@@ -45,6 +43,53 @@ def step_decay(epoch):
     return float(alpha)
 
 
+def train_model(model, train_dataset, val_dataset):   
+    # Prevent base model from training
+    for layer in baseModel.layers:
+        layer.trainable = False
+
+    opt = keras.optimizers.RMSprop(learning_rate=0.01)
+
+    model.compile(loss="categorical_crossentropy", optimizer=opt,
+                metrics=["accuracy"])
+
+    # Add Learning rate scheduler to model callbacks
+    callbacks=[keras.callbacks.LearningRateScheduler(step_decay)]
+
+    print("[INFO] training head...")
+    model.fit(train_dataset, batch_size=batch_size, epochs=epochs_head, 
+        validation_split=0.1, validation_data=val_dataset,
+        callbacks=callbacks)
+
+    # Allow base model to train along with head model for full training
+    for layer in baseModel.layers[0:]:
+        layer.trainable = True
+
+    print("Re-compiling model...")
+
+    # Have to rebuild optimizer for model recompile
+    opt = keras.optimizers.SGD(learning_rate=0.005)
+    model.compile(loss="categorical_crossentropy", optimizer=opt,
+                metrics=["accuracy"])
+    print("Model Compiled")
+
+    full_model_path = Path('.').resolve() / 'trained_models' / ("ResNet152V2" + ".keras")
+    callbacks=[keras.callbacks.LearningRateScheduler(step_decay),
+               keras.callbacks.ModelCheckpoint(full_model_path, monitor="val_accuracy",
+                                               verbose=1, save_best_only=True,
+                                               save_weights_only=False, mode="max",
+                                               save_freq="epoch"),
+                ]
+
+    print("Fine-Tuning Final Model...")
+    model.fit(train_dataset, batch_size=batch_size, epochs=epochs, 
+        validation_split=0.1, validation_data=val_dataset,
+        callbacks=callbacks)
+
+    model_best = keras.models.load_model(full_model_path)
+    return model_best
+
+
 image_dir = Path('.').resolve().parents[1] / 'image_data'
 num_classes = 7
 image_dimension = 224
@@ -54,14 +99,20 @@ epochs = 50
 l2_constant = 0.02
 input = keras.Input(shape=(image_dimension, image_dimension, 3))
 
-(train_ds, val_ds, test_ds) = tusayan_whiteware.load_data(
+(train_ds, test_ds) = tusayan_whiteware.load_data(
    image_dimension=(image_dimension, image_dimension),
-   training_split=(0.6,0.2,0.2),
+   training_split=(0.8,0.0,0.2),
    batch_size=batch_size
    )
 
 train_ds = train_ds.map(preprocess)
-val_ds = val_ds.map(preprocess)
+#val_ds = val_ds.map(preprocess)
+test_ds = test_ds.map(preprocess)
+
+x_test = test_ds.map(lambda x, y: x)
+y_test = test_ds.map(lambda x, y: y)
+print(x_test)
+print(y_test)
 
 # Create base model of ResNet
 baseModel = ResNet152V2(weights="imagenet", include_top=False, 
@@ -77,38 +128,21 @@ headModel = keras.layers.Dense(num_classes, activation="softmax")(headModel)
 
 model = keras.models.Model(inputs=baseModel.input, outputs=headModel)
 
-# Prevent base model from training
-for layer in baseModel.layers:
-   layer.trainable = False
+best_base_model = train_model(model, 
+                              train_dataset=train_ds, 
+                              val_dataset=test_ds)
 
-opt = keras.optimizers.RMSprop(learning_rate=0.01)
-
-model.compile(loss="categorical_crossentropy", optimizer=opt,
-            metrics=["accuracy"])
-
-# Add Learning rate scheduler to model callbacks
-callbacks=[keras.callbacks.LearningRateScheduler(step_decay)]
-
-print("[INFO] training head...")
-
-model.fit(train_ds, batch_size=batch_size, epochs=epochs_head, 
-   validation_data=val_ds, callbacks=callbacks)
-
-# Allow base model to train along with head model for full training
-for layer in baseModel.layers[0:]:
-   layer.trainable = True
-
-print("Re-compiling model...")
-
-# Have to rebuild optimizer for model recompile
-opt = keras.optimizers.SGD(learning_rate=0.005)
-model.compile(loss="categorical_crossentropy", optimizer=opt,
-            metrics=["accuracy"])
-print("Model Compiled")
-
-callbacks=[keras.callbacks.LearningRateScheduler(step_decay)]
-
-print("Fine-Tuning Final Model...")
-  
-model.fit(train_ds, batch_size=batch_size, epochs=epochs, 
-   validation_data=val_ds, callbacks=callbacks)
+print("[INFO] evaluating test data for base model...")
+predictions = best_base_model.predict(test_ds, batch_size=batch_size)
+y_true = []
+for image, label in test_ds.unbatch():
+    y_true.append(label)
+true_labels = tf.concat([elem for elem in y_true], axis=0).numpy()
+class_report=classification_report(true_labels.argmax(axis=0), 
+                                   predictions.argmax(axis=1), 
+                                   target_names=[label.name for label in tusayan_whiteware.SherdType])
+print(class_report)
+print("Confusion matrix")
+print([label.name for label in tusayan_whiteware.SherdType])
+con_mat=confusion_matrix(np.argmax(true_labels, axis=0), predictions.argmax(axis=1))
+print(con_mat)

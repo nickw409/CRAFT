@@ -13,7 +13,7 @@ import time
 try:
   sys.path.append(str(Path('.').resolve().parent))
   from misc.progress_bar import printProgressBar
-  import split_images
+  import datasets.split_images as split_images
 except Exception as e:
   print(e)
 
@@ -96,16 +96,6 @@ def load_data(image_dimension, training_split, batch_size=32):
   data = []
   labels = []
   i=0
-  # Try to replace with [label.name for label in SherdType]
-  class_names = [
-    'Kanaa',
-    'Black_Mesa',
-    'Sosi',
-    'Dogoszhi',
-    'Flagstaff',
-    'Tusayan',
-    'Kayenta'
-  ]
   train_split = training_split[0]
   val_split = training_split[1]
   test_split = training_split[2]
@@ -113,8 +103,6 @@ def load_data(image_dimension, training_split, batch_size=32):
   imagelist_path = Path('.').resolve().parents[1] / 'image_data' / 'image_list.csv'
   images_dir = imagelist_path.parent / 'images'
   tusayan_ww_path = imagelist_path.parent / 'tusayan_whiteware'
-  print(imagelist_path)
-  print(images_dir)
 
   if not tusayan_ww_path.exists():
     # Create both sets

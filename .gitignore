@@ -7,6 +7,7 @@ image_data/
 
 # Not needed for development
 Testing/
+trained_models/
 
 # Junk
 .DS_Store
