@@ -83,7 +83,8 @@ def train_model(model, train_dataset, val_dataset):
                                                verbose=1, save_best_only=True,
                                                save_weights_only=False, mode="max",
                                                save_freq="epoch"),
-                tensorboard
+                keras.callbacks.EarlyStopping(patience=3),
+                tensorboard,
                 ]
 
     print("Fine-Tuning Final Model...")
@@ -133,16 +134,19 @@ best_base_model = train_model(model,
                               val_dataset=test_ds)
 
 print("[INFO] evaluating test data for base model...")
-predictions = best_base_model.predict(test_ds, batch_size=batch_size)
 y_true = []
-for image, label in test_ds.unbatch():
-    y_true.append(label)
-true_labels = tf.concat([elem for elem in y_true], axis=0).numpy()
-class_report=classification_report(true_labels.argmax(axis=0), 
-                                   predictions.argmax(axis=1), 
+y_pred = []
+for image_batch, label_batch in test_ds:
+    y_true.append(label_batch)
+    preds = best_base_model.predict(image_batch)
+    y_pred.append(np.argmax(preds, axis=-1))
+correct_labels = tf.concat([item for item in y_true], axis = 0)
+predicted_labels = tf.concat([item for item in y_pred], axis = 0)
+class_report=classification_report(np.argmax(correct_labels, axis=1),
+                                   predicted_labels,
                                    target_names=[label.name for label in tusayan_whiteware.SherdType])
 print(class_report)
 print("Confusion matrix")
 print([label.name for label in tusayan_whiteware.SherdType])
-con_mat=confusion_matrix(np.argmax(true_labels, axis=0), predictions.argmax(axis=1))
+con_mat=confusion_matrix(np.argmax(correct_labels, axis=1), predicted_labels)
 print(con_mat)

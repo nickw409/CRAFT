@@ -98,7 +98,6 @@ def load_data(image_dimension, training_split, batch_size=32):
   i=0
   train_split = training_split[0]
   val_split = training_split[1]
-  test_split = training_split[2]
 
   imagelist_path = Path('.').resolve().parents[1] / 'image_data' / 'image_list.csv'
   images_dir = imagelist_path.parent / 'images'
@@ -116,7 +115,6 @@ def load_data(image_dimension, training_split, batch_size=32):
       labels='inferred',
       label_mode='categorical',
       class_names=[label.name for label in SherdType],
-      #color_mode='grayscale',
       batch_size=batch_size,
       image_size=image_dimension,
       seed=random.randint(1, 999999),
@@ -124,9 +122,6 @@ def load_data(image_dimension, training_split, batch_size=32):
       subset='both',
       interpolation='area'
     )
-    #for image in val_ds.as_numpy_iterator():
-    #  print(image)
-    #  image = cv2.cvtColor(cv2.cvtColor(image, cv2.COLOR_BGR2GRAY), cv2.COLOR_GRAY2BGR)
   else:
     print(f'Loading Training dataset')
     train_ds = keras.utils.image_dataset_from_directory(
@@ -134,7 +129,6 @@ def load_data(image_dimension, training_split, batch_size=32):
       labels='inferred',
       label_mode='categorical',
       class_names=[label.name for label in SherdType],
-      #color_mode='grayscale',
       batch_size=batch_size,
       image_size=image_dimension,
       seed=random.randint(1, 999999),
@@ -142,25 +136,20 @@ def load_data(image_dimension, training_split, batch_size=32):
       subset=None,
       interpolation='area'
     )
-  #for image in train_ds.as_numpy_iterator():
-  #  image = cv2.cvtColor(cv2.cvtColor(image, cv2.COLOR_BGR2GRAY), cv2.COLOR_GRAY2BGR)
   print(f'Loading Test dataset')
   test_ds = keras.utils.image_dataset_from_directory(
     directory=str(tusayan_ww_path / 'Testing'),
     labels='inferred',
     label_mode='categorical',
     class_names=[label.name for label in SherdType],
-    #color_mode='grayscale',
     batch_size=batch_size,
     image_size=image_dimension,
+    shuffle=True,
     seed=random.randint(1, 999999),
     validation_split=None,
     subset=None,
     interpolation='area'
   )
-  #for image in test_ds.as_numpy_iterator():
-  #  image = cv2.cvtColor(cv2.cvtColor(image, cv2.COLOR_BGR2GRAY), cv2.COLOR_GRAY2BGR)
-
   if val_split != 0.0:
     return (train_ds, val_ds, test_ds)
   else:
