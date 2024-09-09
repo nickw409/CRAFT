@@ -1,4 +1,6 @@
+import 'package:craft/screens/login_page.dart';
 import 'package:flutter/material.dart';
+import 'package:page_transition/page_transition.dart';
 
 class RegistrationPage extends StatefulWidget {
   const RegistrationPage({super.key});
@@ -111,7 +113,13 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     child: const Text('Register'),
                   ),
                   TextButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Navigator.push(
+                          context,
+                          PageTransition(
+                              child: const LoginPage(),
+                              type: PageTransitionType.fade));
+                    },
                     child: const Text("Login Instead?"),
                   ),
                 ],
