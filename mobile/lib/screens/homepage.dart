@@ -6,7 +6,7 @@ import 'package:craft/provider/login_provider.dart';
 import 'package:craft/screens/about/about_tww.dart';
 import 'package:craft/screens/edit_results.dart';
 import 'package:craft/screens/my_classificatoins.dart';
-import 'package:craft/screens/settings_page.dart';
+import 'package:craft/screens/user_management/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:image_cropper/image_cropper.dart';
