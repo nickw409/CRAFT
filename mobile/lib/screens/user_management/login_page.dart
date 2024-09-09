@@ -1,4 +1,6 @@
-import 'package:craft/screens/registration_page.dart';
+import 'package:craft/screens/homepage.dart';
+import 'package:craft/screens/user_management/registration_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 
@@ -10,6 +12,67 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _auth = FirebaseAuth.instance;
+
+  Future<void> _login() async {
+    final email = _emailController.text.trim();
+    final password = _passwordController.text.trim();
+
+    if (!_validateEmail(email)) {
+      // Show email validation error
+      _showError("Invalid email address");
+      return;
+    }
+
+    if (!_validatePassword(password)) {
+      // Show password validation error
+      _showError("Password must be at least 6 characters");
+      return;
+    }
+
+    try {
+      await _auth.signInWithEmailAndPassword(email: email, password: password);
+      // Navigate to the next page
+      if (mounted) {
+        Navigator.push(
+            context,
+            PageTransition(
+                child: const HomePage(), type: PageTransitionType.fade));
+      }
+      // push to home page
+    } catch (e) {
+      _showError(e.toString());
+    }
+  }
+
+  bool _validateEmail(String email) {
+    return RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
+        .hasMatch(email);
+  }
+
+  bool _validatePassword(String password) {
+    // Password should be at least 6 characters long
+    return password.length >= 6;
+  }
+
+  void _showError(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Error'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,6 +101,7 @@ class _LoginPageState extends State<LoginPage> {
               height: 16,
             ),
             TextFormField(
+              controller: _emailController,
               keyboardType: TextInputType.emailAddress,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
@@ -47,6 +111,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             const SizedBox(height: 16),
             TextFormField(
+              controller: _passwordController,
               obscureText: true,
               decoration: const InputDecoration(
                 border: OutlineInputBorder(),
@@ -54,12 +119,12 @@ class _LoginPageState extends State<LoginPage> {
                 hintText: 'Password',
               ),
             ),
-            const Spacer(),
+            const SizedBox(height: 32),
             Center(
               child: Column(
                 children: [
                   FilledButton(
-                    onPressed: () {},
+                    onPressed: _login,
                     child: const Text('Login'),
                   ),
                   TextButton(
