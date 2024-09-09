@@ -1,5 +1,8 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:craft/global_variables.dart';
+import 'package:craft/provider/login_provider.dart';
 import 'package:craft/screens/about/about_tww.dart';
 import 'package:craft/screens/edit_results.dart';
 import 'package:craft/screens/my_classificatoins.dart';
@@ -9,6 +12,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:provider/provider.dart';
 
 class HomePage extends StatefulWidget {
   static const String id = 'home';
@@ -25,6 +29,35 @@ class _HomePageState extends State<HomePage> {
   Position? currentPosition;
 
   Map<String, dynamic>? classificatoinMap;
+
+  @override
+  void initState() {
+    super.initState();
+    getCurrentUser();
+  }
+
+  Future<void> getCurrentUser() async {
+    if (currentUser != null) {
+      // Fetch user details from Firestore
+      final userId = currentUser!.uid;
+      final userDoc = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(userId)
+          .get();
+
+      if (userDoc.exists) {
+        final fullName = userDoc['name'] ??
+            'User'; // Assuming fullName is a field in Firestore
+
+        // Update the LoginProvider with the full name
+        if (mounted) {
+          final loginProvider =
+              Provider.of<LoginProvider>(context, listen: false);
+          loginProvider.login(fullName);
+        }
+      }
+    }
+  }
 
   Future pickAndCropImage(ImageSource source) async {
     final pickedImage =
@@ -153,21 +186,43 @@ class _HomePageState extends State<HomePage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(
-              height: 16,
+              height: 32,
             ),
-            const Padding(
-              padding: EdgeInsets.symmetric(vertical: 16),
-              child: FittedBox(
-                fit: BoxFit.contain,
-                child: Text(
-                  'CRAFT',
-                  style: TextStyle(
-                    fontFamily: 'Uber',
-                    fontSize: 60,
-                    fontWeight: FontWeight.w700,
-                  ),
+            const FittedBox(
+              fit: BoxFit.contain,
+              child: Text(
+                'CRAFT',
+                style: TextStyle(
+                  fontFamily: 'Uber',
+                  fontSize: 60,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
+            ),
+            // Check if user is logged in and display a welcome message
+            Consumer<LoginProvider>(
+              builder: (context, loginProvider, child) {
+                if (loginProvider.isLoggedIn) {
+                  return Text(
+                    'Welcome, ${loginProvider.firstName}!',
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                } else {
+                  return const Text(
+                    'You are not logged in!',
+                    style: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  );
+                }
+              },
+            ),
+            const SizedBox(
+              height: 16,
             ),
             selectedImage == null
                 ? Column(

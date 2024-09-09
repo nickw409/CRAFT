@@ -1,6 +1,10 @@
+import 'package:craft/provider/login_provider.dart';
+import 'package:craft/screens/homepage.dart';
 import 'package:craft/screens/user_management/login_page.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
+import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class SettingsPage extends StatelessWidget {
@@ -12,6 +16,33 @@ class SettingsPage extends StatelessWidget {
   Future<void> _launchAboutURL() async {
     if (!await launchUrl(_url)) {
       throw Exception('Could not launch $_url');
+    }
+  }
+
+  Future<void> _logout(BuildContext context) async {
+    try {
+      // Sign out from Firebase
+      await FirebaseAuth.instance.signOut();
+
+      // Clear the user info in the provider
+      if (context.mounted) {
+        Provider.of<LoginProvider>(context, listen: false).logout();
+      }
+
+      // Navigate back to the login screen
+      if (context.mounted) {
+        Navigator.pushReplacement(
+          context,
+          PageTransition(
+              child: const HomePage(), type: PageTransitionType.fade),
+        );
+      }
+    } catch (e) {
+      // Handle any errors during sign-out
+      if (context.mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
+      }
     }
   }
 
@@ -71,7 +102,9 @@ class SettingsPage extends StatelessWidget {
                         ),
                       ),
                       TextButton(
-                          onPressed: () {}, child: const Text("Sign Out")),
+                        onPressed: () => _logout(context),
+                        child: const Text("Sign Out"),
+                      ),
                     ],
                   ),
                   Column(
