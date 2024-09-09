@@ -160,7 +160,7 @@ class _EditResultsState extends State<EditResults> {
             Center(
                 child: TextButton(
                     onPressed: () {
-                      Navigator.pop(context);
+                      Navigator.pop(context, widget.classificatoinMap);
                     },
                     child: const Text('Back'))),
           ],
