@@ -1,21 +1,40 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:craft/global_variables.dart';
 import 'package:craft/widgets/classification_item.dart';
 import 'package:flutter/material.dart';
 
-class MyClassificatoins extends StatelessWidget {
+class MyClassificatoins extends StatefulWidget {
   const MyClassificatoins({super.key});
 
   @override
+  State<MyClassificatoins> createState() => _MyClassificatoinsState();
+}
+
+class _MyClassificatoinsState extends State<MyClassificatoins> {
+  late Stream<QuerySnapshot> historyStream;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the stream
+    historyStream = FirebaseFirestore.instance
+        .collection('classifications')
+        .where('userId', isEqualTo: currentUser!.uid)
+        .snapshots();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       body: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            SizedBox(
+            const SizedBox(
               height: 16,
             ),
-            Padding(
+            const Padding(
               padding: EdgeInsets.symmetric(vertical: 16),
               child: FittedBox(
                 fit: BoxFit.contain,
@@ -29,22 +48,41 @@ class MyClassificatoins extends StatelessWidget {
                 ),
               ),
             ),
-            SizedBox(
-              height: 16,
-            ),
-            Divider(),
-            ClassificationItem(
-                imageUrl: 'asd.com',
-                title: 'Flagstaff',
-                description: '11/28/2000'),
-            ClassificationItem(
-                imageUrl: 'asd.com',
-                title: 'Flagstaff',
-                description: '11/28/2000'),
-            ClassificationItem(
-                imageUrl: 'asd.com',
-                title: 'Flagstaff',
-                description: '11/28/2000')
+            // const SizedBox(
+            //   height: 16,
+            // ),
+            // const Divider(),s
+            Expanded(
+              child: StreamBuilder(
+                  stream: historyStream,
+                  builder: (context, snapshot) {
+                    if (snapshot.connectionState == ConnectionState.waiting) {
+                      return const Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasError) {
+                      return Center(child: Text('Error: ${snapshot.error}'));
+                    } else if (!snapshot.hasData ||
+                        snapshot.data!.docs.isEmpty) {
+                      return const Center(child: Text('No history found.'));
+                    }
+
+                    List<QueryDocumentSnapshot> documents = snapshot.data!.docs;
+
+                    // Build the list of ClassificationItem widgets
+                    List<Widget> items = documents.map((doc) {
+                      Map<String, dynamic> data =
+                          doc.data() as Map<String, dynamic>;
+                      return ClassificationItem(
+                        imageUrl: data['imageUrl'] ?? 'placeholder_image_url',
+                        title: data['primaryClassification'] ?? 'No Title',
+                        timestamp: data['timestamp'] ?? 'No Description',
+                      );
+                    }).toList();
+
+                    return ListView(
+                      children: items,
+                    );
+                  }),
+            )
           ],
         ),
       ),

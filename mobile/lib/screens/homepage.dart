@@ -163,6 +163,26 @@ class _HomePageState extends State<HomePage> {
             const LocationSettings(accuracy: LocationAccuracy.low));
   }
 
+  void saveClassification() async {
+    final classifications =
+        FirebaseFirestore.instance.collection('classifications');
+
+    // TODO: save image to firebase storage
+
+    // add the file url to doc.
+
+    classificatoinMap!['userId'] = currentUser!.uid;
+    classificatoinMap!['timestamp'] = DateTime.now();
+
+    print(classificatoinMap);
+    classifications.add(classificatoinMap!).then((onValue) {
+      // print('Classification saved');
+      resetScreen();
+    }).catchError((err) {
+      // TODO: show error message to user
+    });
+  }
+
   void editClassification() async {
     Map<String, dynamic>? editedClassificatoin = await Navigator.push(
         context,
@@ -514,27 +534,39 @@ class _HomePageState extends State<HomePage> {
               height: 16,
             ),
             selectedImage != null && classificaitonData == null
-                ? FilledButton(
-                    onPressed: classifyImage, child: const Text('Classify'))
+                ? Center(
+                    child: FilledButton(
+                        onPressed: classifyImage,
+                        child: const Text('Classify')),
+                  )
                 : Container(),
             selectedImage != null && classificaitonData == null
-                ? TextButton(
-                    onPressed: resetScreen, child: const Text('Clear Image'))
+                ? Center(
+                    child: TextButton(
+                        onPressed: resetScreen,
+                        child: const Text('Clear Image')),
+                  )
                 : Container(),
             selectedImage != null && classificaitonData != null
-                ? FilledButton(
-                    onPressed: classifyImage,
-                    child: const Text('Save Classification'))
+                ? Center(
+                    child: FilledButton(
+                        onPressed: saveClassification,
+                        child: const Text('Save Classification')),
+                  )
                 : Container(),
             selectedImage != null && classificaitonData != null
-                ? TextButton(
-                    onPressed: resetScreen,
-                    child: const Text('Clear Image and Classification'))
+                ? Center(
+                    child: TextButton(
+                        onPressed: resetScreen,
+                        child: const Text('Clear Image and Classification')),
+                  )
                 : Container(),
             selectedImage != null && classificaitonData != null
-                ? TextButton(
-                    onPressed: editClassification,
-                    child: const Text('Edit Classification'))
+                ? Center(
+                    child: TextButton(
+                        onPressed: editClassification,
+                        child: const Text('Edit Classification')),
+                  )
                 : Container(),
           ],
         ),
