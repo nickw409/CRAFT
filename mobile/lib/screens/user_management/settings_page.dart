@@ -88,17 +88,17 @@ class SettingsPage extends StatelessWidget {
                             ),
                             const SizedBox(height: 16),
                             const Icon(Icons.person_rounded, size: 90),
-                            const Text(
-                              "John Doe",
-                              style: TextStyle(
+                            Text(
+                              loginProvider.firstName ?? "User",
+                              style: const TextStyle(
                                 fontFamily: 'Uber',
                                 fontSize: 35,
                                 fontWeight: FontWeight.w700,
                               ),
                             ),
-                            const Text(
-                              "Archaeologist",
-                              style: TextStyle(
+                            Text(
+                              loginProvider.role ?? "Role",
+                              style: const TextStyle(
                                 fontFamily: 'Uber',
                                 fontSize: 25,
                               ),

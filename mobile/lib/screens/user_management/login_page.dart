@@ -48,14 +48,13 @@ class _LoginPageState extends State<LoginPage> {
         final userDoc = await _firestore.collection('users').doc(userId).get();
 
         if (userDoc.exists) {
-          final fullName = userDoc['name'] ??
-              'User'; // Assuming fullName is a field in Firestore
+          final fullName = userDoc['name'] ?? 'User';
+          final role = userDoc['role'] ?? 'Role';
 
-          // Update the LoginProvider with the full name
           if (mounted) {
             final loginProvider =
                 Provider.of<LoginProvider>(context, listen: false);
-            loginProvider.login(fullName);
+            loginProvider.login(fullName, role);
           }
           // Navigate to the next page
           if (mounted) {

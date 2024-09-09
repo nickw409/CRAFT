@@ -46,14 +46,14 @@ class _HomePageState extends State<HomePage> {
           .get();
 
       if (userDoc.exists) {
-        final fullName = userDoc['name'] ??
-            'User'; // Assuming fullName is a field in Firestore
+        final fullName = userDoc['name'] ?? 'User';
+        final role = userDoc['role'] ?? 'Role';
 
         // Update the LoginProvider with the full name
         if (mounted) {
           final loginProvider =
               Provider.of<LoginProvider>(context, listen: false);
-          loginProvider.login(fullName);
+          loginProvider.login(fullName, role);
         }
       }
     }
@@ -206,13 +206,14 @@ class _HomePageState extends State<HomePage> {
                   return Text(
                     'Welcome, ${loginProvider.firstName}!',
                     style: const TextStyle(
+                      fontFamily: 'Uber',
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
                     ),
                   );
                 } else {
                   return const Text(
-                    'You are not logged in!',
+                    'Welcome, Anonymous!',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
