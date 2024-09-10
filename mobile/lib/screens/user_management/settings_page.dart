@@ -1,3 +1,4 @@
+import 'package:craft/global_variables.dart';
 import 'package:craft/provider/login_provider.dart';
 import 'package:craft/screens/homepage.dart';
 import 'package:craft/screens/user_management/login_page.dart';
@@ -28,6 +29,8 @@ class SettingsPage extends StatelessWidget {
       if (context.mounted) {
         Provider.of<LoginProvider>(context, listen: false).logout();
       }
+
+      currentUser = null;
 
       // Navigate back to the login screen
       if (context.mounted) {

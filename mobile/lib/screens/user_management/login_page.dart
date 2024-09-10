@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:craft/global_variables.dart';
 import 'package:craft/provider/login_provider.dart';
 import 'package:craft/screens/homepage.dart';
 import 'package:craft/screens/user_management/registration_page.dart';
@@ -42,6 +43,8 @@ class _LoginPageState extends State<LoginPage> {
           email: email, password: password);
 
       // Trigger LoginProvider to update login state
+
+      currentUser = userCredential.user;
       if (userCredential.user != null) {
         // Fetch user details from Firestore
         final userId = userCredential.user!.uid;
