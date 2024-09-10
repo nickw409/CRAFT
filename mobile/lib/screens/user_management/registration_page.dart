@@ -1,5 +1,4 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:craft/screens/homepage.dart';
 import 'package:craft/screens/user_management/login_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -20,6 +19,24 @@ class _RegistrationPageState extends State<RegistrationPage> {
   String? selectedRole;
   final _auth = FirebaseAuth.instance;
   final _firestore = FirebaseFirestore.instance;
+
+  final _nameFocusNode = FocusNode();
+  final _emailFocusNode = FocusNode();
+  final _passwordFocusNode = FocusNode();
+  final _confirmPasswordFocusNode = FocusNode();
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    _nameFocusNode.dispose();
+    _emailFocusNode.dispose();
+    _passwordFocusNode.dispose();
+    _confirmPasswordFocusNode.dispose();
+    super.dispose();
+  }
 
   Future<void> _register() async {
     final name = _nameController.text.trim();
@@ -61,12 +78,14 @@ class _RegistrationPageState extends State<RegistrationPage> {
         'role': selectedRole ?? 'User',
       });
 
+      FirebaseAuth.instance.signOut();
+
       // Navigate to the login page
       if (mounted) {
         Navigator.pushReplacement(
           context,
           PageTransition(
-            child: const HomePage(),
+            child: const LoginPage(),
             type: PageTransitionType.fade,
           ),
         );
@@ -105,126 +124,147 @@ class _RegistrationPageState extends State<RegistrationPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-          child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(
-                height: 16,
-              ),
-              const FittedBox(
-                fit: BoxFit.contain,
-                child: Text(
-                  'Register',
-                  style: TextStyle(
-                    fontFamily: 'Uber',
-                    fontSize: 60,
-                    fontWeight: FontWeight.w700,
-                  ),
+    return GestureDetector(
+      onTap: () => FocusScope.of(context).unfocus(),
+      child: Scaffold(
+        body: SafeArea(
+            child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(
+                  height: 16,
                 ),
-              ),
-              const SizedBox(
-                height: 16,
-              ),
-              TextFormField(
-                controller: _nameController,
-                keyboardType: TextInputType.name,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  icon: Icon(Icons.person_rounded),
-                  hintText: 'Name',
-                ),
-              ),
-              const SizedBox(
-                height: 16,
-              ),
-              TextFormField(
-                controller: _emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  icon: Icon(Icons.email_rounded),
-                  hintText: 'Email',
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _passwordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  icon: Icon(Icons.password_rounded),
-                  hintText: 'Password',
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _confirmPasswordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  icon: Icon(Icons.lock_rounded),
-                  hintText: 'Confirm Password',
-                ),
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                  icon: Icon(Icons.work_rounded),
-                  hintText: 'Select Role',
-                ),
-                value: selectedRole,
-                onChanged: (newValue) {
-                  setState(() {
-                    selectedRole = newValue;
-                  });
-                },
-                items: const [
-                  DropdownMenuItem(
-                    value: 'Hobbyist',
-                    child: Text('Hobbyist'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'Archaeologist',
-                    child: Text('Archaeologist'),
-                  ),
-                  DropdownMenuItem(
-                    value: 'Student',
-                    child: Text('Student'),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 32),
-              Center(
-                child: Column(
-                  children: [
-                    FilledButton(
-                      onPressed: _register,
-                      child: const Text('Register'),
+                const FittedBox(
+                  fit: BoxFit.contain,
+                  child: Text(
+                    'Register',
+                    style: TextStyle(
+                      fontFamily: 'Uber',
+                      fontSize: 60,
+                      fontWeight: FontWeight.w700,
                     ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            PageTransition(
-                                child: const LoginPage(),
-                                type: PageTransitionType.fade));
-                      },
-                      child: const Text("Login Instead?"),
+                  ),
+                ),
+                const SizedBox(
+                  height: 16,
+                ),
+                TextFormField(
+                  focusNode: _nameFocusNode,
+                  controller: _nameController,
+                  textCapitalization: TextCapitalization.words,
+                  keyboardType: TextInputType.name,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    icon: Icon(Icons.person_rounded),
+                    hintText: 'Name',
+                  ),
+                  onFieldSubmitted: (_) {
+                    FocusScope.of(context).requestFocus(_emailFocusNode);
+                  },
+                ),
+                const SizedBox(
+                  height: 16,
+                ),
+                TextFormField(
+                  focusNode: _emailFocusNode,
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    icon: Icon(Icons.email_rounded),
+                    hintText: 'Email',
+                  ),
+                  onFieldSubmitted: (_) {
+                    FocusScope.of(context).requestFocus(_passwordFocusNode);
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  focusNode: _passwordFocusNode,
+                  controller: _passwordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    icon: Icon(Icons.password_rounded),
+                    hintText: 'Password',
+                  ),
+                  onFieldSubmitted: (_) {
+                    FocusScope.of(context)
+                        .requestFocus(_confirmPasswordFocusNode);
+                  },
+                ),
+                const SizedBox(height: 16),
+                TextFormField(
+                  focusNode: _confirmPasswordFocusNode,
+                  controller: _confirmPasswordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    icon: Icon(Icons.lock_rounded),
+                    hintText: 'Confirm Password',
+                  ),
+                  onFieldSubmitted: (_) {
+                    FocusScope.of(context).unfocus();
+                  },
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(),
+                    icon: Icon(Icons.work_rounded),
+                    hintText: 'Select Role',
+                  ),
+                  value: selectedRole,
+                  onChanged: (newValue) {
+                    setState(() {
+                      selectedRole = newValue;
+                    });
+                  },
+                  items: const [
+                    DropdownMenuItem(
+                      value: 'Hobbyist',
+                      child: Text('Hobbyist'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'Archaeologist',
+                      child: Text('Archaeologist'),
+                    ),
+                    DropdownMenuItem(
+                      value: 'Student',
+                      child: Text('Student'),
                     ),
                   ],
                 ),
-              )
-            ],
+                const SizedBox(height: 32),
+                Center(
+                  child: Column(
+                    children: [
+                      FilledButton(
+                        onPressed: _register,
+                        child: const Text('Register'),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                              context,
+                              PageTransition(
+                                  child: const LoginPage(),
+                                  type: PageTransitionType.fade));
+                        },
+                        child: const Text("Login Instead?"),
+                      ),
+                    ],
+                  ),
+                )
+              ],
+            ),
           ),
-        ),
-      )),
+        )),
+      ),
     );
   }
 }

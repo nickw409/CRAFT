@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:craft/provider/login_provider.dart';
 import 'package:craft/screens/user_management/login_page.dart';
+import 'package:craft/widgets/sherd_details.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:craft/global_variables.dart';
@@ -52,8 +53,6 @@ class _MyClassificationsState extends State<MyClassifications> {
       classifications.add(box.getAt(i));
     }
 
-    print(classifications);
-
     setState(() {
       classificationHistory = classifications;
       numClassifications = classifications.length;
@@ -66,6 +65,17 @@ class _MyClassificationsState extends State<MyClassifications> {
   }
 
   Future<void> syncToDatabase() async {
+    // Show loading spinner
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return const Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+    );
+
     var box = Hive.box('classificationBox');
     final FirebaseStorage storage = FirebaseStorage.instance;
 
@@ -93,6 +103,8 @@ class _MyClassificationsState extends State<MyClassifications> {
         'allClassificatoins': classification['allClassificatoins'],
         'timestamp': classification['timestamp'],
         'imageUrl': imageUrl,
+        'latitude': classification['latitude'],
+        'longitude': classification['longitude'],
       });
     }
 
@@ -102,6 +114,10 @@ class _MyClassificationsState extends State<MyClassifications> {
     // Reload data from Hive
     loadClassificationsFromHive();
 
+    if (mounted) {
+      Navigator.of(context).pop();
+    }
+
     _showMessage('Synced to database successfully.');
   }
 
@@ -109,7 +125,7 @@ class _MyClassificationsState extends State<MyClassifications> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Error'),
+        title: const Text('Success'),
         content: Text(message),
         actions: [
           TextButton(
@@ -159,14 +175,25 @@ class _MyClassificationsState extends State<MyClassifications> {
                             itemCount: classificationHistory.length,
                             itemBuilder: (context, index) {
                               var data = classificationHistory[index];
-                              return ClassificationItem(
-                                fromHive: true,
-                                imageUrl: data['imageLocation'] ??
-                                    'placeholder_image_url',
-                                title:
-                                    data['primaryClassification'] ?? 'No Title',
-                                timestamp:
-                                    data['timestamp'] ?? 'No Description',
+                              return GestureDetector(
+                                onTap: () {
+                                  showSherdDetailsDialog(
+                                    context,
+                                    imageUrl: data['imageLocation'],
+                                    title: data['primaryClassification'],
+                                    details: data['allClassificatoins'],
+                                    timestamp: data['timestamp'],
+                                    fromHive: true,
+                                    lattitude: data['latitude'],
+                                    longitude: data['longitude'],
+                                  );
+                                },
+                                child: ClassificationItem(
+                                  fromHive: true,
+                                  imageUrl: data['imageLocation'],
+                                  title: data['primaryClassification'],
+                                  timestamp: data['timestamp'],
+                                ),
                               );
                             },
                           ),
@@ -234,14 +261,25 @@ class _MyClassificationsState extends State<MyClassifications> {
                                 List<Widget> items = documents.map((doc) {
                                   Map<String, dynamic> data =
                                       doc.data() as Map<String, dynamic>;
-                                  return ClassificationItem(
-                                    fromHive: false,
-                                    imageUrl: data['imageUrl'] ??
-                                        'placeholder_image_url',
-                                    title: data['primaryClassification'] ??
-                                        'No Title',
-                                    timestamp: (data['timestamp']).toDate() ??
-                                        'No Description',
+                                  return GestureDetector(
+                                    onTap: () {
+                                      showSherdDetailsDialog(
+                                        context,
+                                        imageUrl: data['imageUrl'],
+                                        title: data['primaryClassification'],
+                                        details: data['allClassificatoins'],
+                                        timestamp: (data['timestamp']).toDate(),
+                                        fromHive: false,
+                                        lattitude: data['latitude'],
+                                        longitude: data['longitude'],
+                                      );
+                                    },
+                                    child: ClassificationItem(
+                                      fromHive: false,
+                                      imageUrl: data['imageUrl'],
+                                      title: data['primaryClassification'],
+                                      timestamp: (data['timestamp']).toDate(),
+                                    ),
                                   );
                                 }).toList();
 
@@ -260,3 +298,14 @@ class _MyClassificationsState extends State<MyClassifications> {
     );
   }
 }
+
+/*
+ showSherdDetailsDialog(
+                                        context,
+                                        imageUrl: data['imageUrl'],
+                                        title: data['primaryClassification'],
+                                        details: data['allClassificatoins'],
+                                        timestamp: (data['timestamp']).toDate(),
+                                        fromHive: true,
+                                      );
+*/

@@ -67,7 +67,7 @@ class SettingsPage extends StatelessWidget {
                   child: FittedBox(
                     fit: BoxFit.contain,
                     child: Text(
-                      'Settings',
+                      'Account',
                       style: TextStyle(
                         fontFamily: 'Uber',
                         fontSize: 60,
@@ -119,7 +119,7 @@ class SettingsPage extends StatelessWidget {
                               height: 16,
                             ),
                             const SizedBox(height: 16),
-                            // const Icon(Icons.login_rounded, size: 90),
+                            const Icon(Icons.no_accounts_rounded, size: 90),
                             const Text(
                               "Not Signed In",
                               style: TextStyle(

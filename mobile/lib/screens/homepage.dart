@@ -193,13 +193,12 @@ class _HomePageState extends State<HomePage> {
     // Add additional fields to the classification map
     classificatoinMap!['timestamp'] = DateTime.now();
     classificatoinMap!['imageLocation'] = imageLocation;
-
-    print(classificatoinMap);
+    classificatoinMap!['latitude'] = currentPosition!.latitude;
+    classificatoinMap!['longitude'] = currentPosition!.longitude;
 
     try {
       // Save the classification data locally to Hive
       await box.add(classificatoinMap!);
-      print('Classification saved locally to Hive');
       resetScreen(); // Reset the screen after saving
     } catch (err) {
       print('Error saving classification to Hive: $err');
@@ -252,28 +251,28 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               // Check if user is logged in and display a welcome message
-              Consumer<LoginProvider>(
-                builder: (context, loginProvider, child) {
-                  if (loginProvider.isLoggedIn) {
-                    return Text(
-                      'Welcome, ${loginProvider.firstName}!',
-                      style: const TextStyle(
-                        fontFamily: 'Uber',
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    );
-                  } else {
-                    return const Text(
-                      'Welcome, Anonymous!',
-                      style: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    );
-                  }
-                },
-              ),
+              // Consumer<LoginProvider>(
+              //   builder: (context, loginProvider, child) {
+              //     if (loginProvider.isLoggedIn) {
+              //       return Text(
+              //         'Welcome, ${loginProvider.firstName}!',
+              //         style: const TextStyle(
+              //           fontFamily: 'Uber',
+              //           fontSize: 24,
+              //           fontWeight: FontWeight.bold,
+              //         ),
+              //       );
+              //     } else {
+              //       return const Text(
+              //         'Welcome, Anonymous!',
+              //         style: TextStyle(
+              //           fontSize: 24,
+              //           fontWeight: FontWeight.bold,
+              //         ),
+              //       );
+              //     }
+              //   },
+              // ),
               const SizedBox(
                 height: 16,
               ),
@@ -432,7 +431,6 @@ class _HomePageState extends State<HomePage> {
                                           type: PageTransitionType.fade));
                                 },
                                 child: Container(
-                                  // width: MediaQuery.of(context).size.width / 2.3,
                                   height: MediaQuery.of(context).size.width / 3,
                                   decoration: BoxDecoration(
                                       color: Theme.of(context)
@@ -491,23 +489,55 @@ class _HomePageState extends State<HomePage> {
                                           MainAxisAlignment.center,
                                       children: [
                                         Icon(
-                                          Icons.settings_rounded,
+                                          Icons.account_circle_rounded,
                                           size: 90,
                                           color: Theme.of(context)
                                               .colorScheme
                                               .onPrimary,
                                         ),
-                                        Text(
-                                          'SETTINGS',
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                            fontFamily: 'Uber',
-                                            fontWeight: FontWeight.w900,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onPrimary,
-                                          ),
+                                        Consumer<LoginProvider>(
+                                          builder:
+                                              (context, loginProvider, child) {
+                                            if (loginProvider.isLoggedIn) {
+                                              return Text(
+                                                loginProvider.firstName!
+                                                    .split(' ')[0]
+                                                    .toUpperCase(),
+                                                style: TextStyle(
+                                                  fontSize: 20,
+                                                  fontFamily: 'Uber',
+                                                  fontWeight: FontWeight.w900,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onPrimary,
+                                                ),
+                                              );
+                                            } else {
+                                              return Text(
+                                                "GUEST",
+                                                style: TextStyle(
+                                                  fontSize: 20,
+                                                  fontFamily: 'Uber',
+                                                  fontWeight: FontWeight.w900,
+                                                  color: Theme.of(context)
+                                                      .colorScheme
+                                                      .onPrimary,
+                                                ),
+                                              );
+                                            }
+                                          },
                                         ),
+                                        // Text(
+                                        //   'SETTINGS',
+                                        //   style: TextStyle(
+                                        //     fontSize: 20,
+                                        //     fontFamily: 'Uber',
+                                        //     fontWeight: FontWeight.w900,
+                                        //     color: Theme.of(context)
+                                        //         .colorScheme
+                                        //         .onPrimary,
+                                        //   ),
+                                        // ),
                                       ],
                                     ),
                                   ),
