@@ -74,8 +74,10 @@ class ClassificationItem extends StatelessWidget {
             ),
             const Spacer(),
             fromHive
-                ? const Text('NOT SYNCED', style: TextStyle(color: Colors.red))
-                : const Text('SYNCED', style: TextStyle(color: Colors.green)),
+                ? const Text('NOT SYNCED',
+                    style: TextStyle(
+                        color: Colors.red, fontWeight: FontWeight.bold))
+                : Container()
           ],
         ),
         const Divider(),

@@ -66,7 +66,7 @@ class _MyClassificationsState extends State<MyClassifications> {
           bottom: const TabBar(
             tabs: [
               Tab(text: 'On My Device'),
-              Tab(text: 'On the Cloud'),
+              Tab(text: 'On The Cloud'),
             ],
           ),
         ),
