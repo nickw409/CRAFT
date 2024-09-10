@@ -35,7 +35,7 @@ class AboutTww extends StatelessWidget {
                 child: FittedBox(
                   fit: BoxFit.contain,
                   child: Text(
-                    'Tusayan White Ware',
+                    'About TWW',
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 60,
@@ -71,14 +71,14 @@ class AboutTww extends StatelessWidget {
               const SizedBox(height: 16),
               const ExpansionTile(
                 subtitle: Text(
-                  'Learn More Tusayan White Ware',
+                  'Learn More',
                   style: TextStyle(
                     fontFamily: 'Uber',
                     fontSize: 15,
                   ),
                 ),
                 title: Text(
-                  'About',
+                  'Tuyasan White Ware',
                   style: TextStyle(
                     fontFamily: 'Uber',
                     fontSize: 25,
