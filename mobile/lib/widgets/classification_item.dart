@@ -1,21 +1,25 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 class ClassificationItem extends StatelessWidget {
-  const ClassificationItem(
-      {super.key,
-      required this.imageUrl,
-      required this.title,
-      required this.timestamp});
+  const ClassificationItem({
+    super.key,
+    required this.imageUrl,
+    required this.title,
+    required this.timestamp,
+    required this.fromHive,
+  });
 
   final String imageUrl;
   final String title;
-  final Timestamp timestamp;
+  final DateTime timestamp;
+  final bool fromHive;
 
-  String formatTimestamp(Timestamp timestamp) {
+  String formatTimestamp(DateTime timestamp) {
     // Convert Timestamp to DateTime
-    DateTime dateTime = timestamp.toDate();
+    DateTime dateTime = timestamp;
 
     // Create a DateFormat object for MM/DD/YY
     DateFormat formatter = DateFormat('MM/dd/yy');
@@ -33,13 +37,19 @@ class ClassificationItem extends StatelessWidget {
           children: [
             ClipRRect(
               borderRadius: BorderRadius.circular(5),
-              child: Image.network(
-                'https://via.placeholder.com/150',
-                width: 75,
-              ),
+              child: fromHive
+                  ? Image.file(
+                      File(imageUrl),
+                      width: 75,
+                    )
+                  : Image.network(
+                      imageUrl,
+                      width: 75,
+                    ),
             ),
             const SizedBox(
               width: 16,
+              height: 16,
             ),
             Column(
               mainAxisAlignment: MainAxisAlignment.start,
@@ -62,6 +72,10 @@ class ClassificationItem extends StatelessWidget {
                 ),
               ],
             ),
+            const Spacer(),
+            fromHive
+                ? const Text('NOT SYNCED', style: TextStyle(color: Colors.red))
+                : const Text('SYNCED', style: TextStyle(color: Colors.green)),
           ],
         ),
         const Divider(),

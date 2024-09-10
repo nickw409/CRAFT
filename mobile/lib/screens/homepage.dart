@@ -9,6 +9,7 @@ import 'package:craft/screens/my_classificatoins.dart';
 import 'package:craft/screens/user_management/settings_page.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:hive/hive.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:page_transition/page_transition.dart';
@@ -163,24 +164,48 @@ class _HomePageState extends State<HomePage> {
             const LocationSettings(accuracy: LocationAccuracy.low));
   }
 
-  void saveClassification() async {
-    final classifications =
-        FirebaseFirestore.instance.collection('classifications');
+  // void saveClassification() async {
+  //   final classifications =
+  //       FirebaseFirestore.instance.collection('classifications');
 
-    // TODO: save image to firebase storage
+  //   // TODO: save image to firebase storage
 
-    // add the file url to doc.
+  //   // add the file url to doc.
 
+  //   classificatoinMap!['userId'] = currentUser!.uid;
+  //   classificatoinMap!['timestamp'] = DateTime.now();
+
+  //   print(classificatoinMap);
+  //   classifications.add(classificatoinMap!).then((onValue) {
+  //     // print('Classification saved');
+  //     resetScreen();
+  //   }).catchError((err) {
+  //     print(err);
+  //   });
+  // }
+
+  // Saving Data locally
+  void saveClassificationLocally() async {
+    // Open the Hive box for classifications
+    var box = Hive.box('classificationBox');
+    String imageLocation = selectedImage!.path;
+
+    // Add additional fields to the classification map
     classificatoinMap!['userId'] = currentUser!.uid;
     classificatoinMap!['timestamp'] = DateTime.now();
+    classificatoinMap!['imageLocation'] = imageLocation;
 
     print(classificatoinMap);
-    classifications.add(classificatoinMap!).then((onValue) {
-      // print('Classification saved');
-      resetScreen();
-    }).catchError((err) {
-      // TODO: show error message to user
-    });
+
+    try {
+      // Save the classification data locally to Hive
+      await box.add(classificatoinMap!);
+      print('Classification saved locally to Hive');
+      resetScreen(); // Reset the screen after saving
+    } catch (err) {
+      print('Error saving classification to Hive: $err');
+      // You can add error handling here (e.g., show a message to the user)
+    }
   }
 
   void editClassification() async {
@@ -195,6 +220,12 @@ class _HomePageState extends State<HomePage> {
     setState(() {
       classificatoinMap = editedClassificatoin;
     });
+  }
+
+  void clearBox() {
+    var box = Hive.box('classificationBox');
+
+    box.clear();
   }
 
   @override
@@ -343,7 +374,7 @@ class _HomePageState extends State<HomePage> {
                         onTap: () => Navigator.push(
                             context,
                             PageTransition(
-                                child: const MyClassificatoins(),
+                                child: const MyClassifications(),
                                 type: PageTransitionType.fade)),
                         child: Container(
                           width: MediaQuery.of(context).size.width,
@@ -533,6 +564,7 @@ class _HomePageState extends State<HomePage> {
             const SizedBox(
               height: 16,
             ),
+            TextButton(onPressed: clearBox, child: Text('Clear Box')),
             selectedImage != null && classificaitonData == null
                 ? Center(
                     child: FilledButton(
@@ -550,7 +582,7 @@ class _HomePageState extends State<HomePage> {
             selectedImage != null && classificaitonData != null
                 ? Center(
                     child: FilledButton(
-                        onPressed: saveClassification,
+                        onPressed: saveClassificationLocally,
                         child: const Text('Save Classification')),
                   )
                 : Container(),
