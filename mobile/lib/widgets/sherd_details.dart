@@ -49,7 +49,6 @@ class SherdDetails extends StatelessWidget {
             ),
           ],
         ),
-        // height: MediaQuery.of(context).size.width / 0.75,
         width: MediaQuery.of(context).size.width / 1.2,
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
