@@ -159,9 +159,8 @@ class _HomePageState extends State<HomePage> {
     // When we reach here, permissions are granted and we can
     // continue accessing the position of the device.
     return await Geolocator.getCurrentPosition(
-        // using the low locaiton accuracy makes accuracy of location 0-1000 m
-        locationSettings:
-            const LocationSettings(accuracy: LocationAccuracy.low));
+      desiredAccuracy: LocationAccuracy.low,
+    );
   }
 
   // void saveClassification() async {
