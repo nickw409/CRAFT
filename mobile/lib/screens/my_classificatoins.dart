@@ -1,4 +1,7 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:hive/hive.dart';
 import 'package:craft/global_variables.dart';
 import 'package:craft/widgets/classification_item.dart';
@@ -35,6 +38,8 @@ class _MyClassificationsState extends State<MyClassifications> {
       classifications.add(box.getAt(i));
     }
 
+    print(classifications);
+
     setState(() {
       classificationHistory = classifications;
     });
@@ -43,6 +48,47 @@ class _MyClassificationsState extends State<MyClassifications> {
   DateTime convertTimestampToDateTime(int timestamp) {
     // Convert timestamp (in seconds) to milliseconds
     return DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
+  }
+
+// TODO: Implement syncToDatabase
+  Future<void> syncToDatabase() async {
+    var box = Hive.box('classificationBox');
+    final FirebaseStorage _storage = FirebaseStorage.instance;
+
+    // Fetch all classifications
+    List<Map<dynamic, dynamic>> classifications = [];
+    for (var i = 0; i < box.length; i++) {
+      classifications.add(box.getAt(i));
+    }
+
+    // Add classifications to Firestore
+    for (var classification in classifications) {
+      File imageFile = File(classification['imageLocation']);
+      String fileName = imageFile.uri.pathSegments.last;
+      Reference storageRef = _storage.ref().child('images/$fileName');
+
+      UploadTask uploadTask = storageRef.putFile(imageFile);
+      TaskSnapshot taskSnapshot = await uploadTask;
+
+      // Get the download URL of the uploaded image
+      String imageUrl = await taskSnapshot.ref.getDownloadURL();
+
+      await FirebaseFirestore.instance.collection('classifications').add({
+        'userId': currentUser!.uid,
+        'primaryClassification': classification['primaryClassification'],
+        'allClassificatoins': classification['allClassificatoins'],
+        'timestamp': classification['timestamp'],
+        'imageUrl': imageUrl,
+      });
+    }
+
+    // Clear Hive box
+    await box.clear();
+
+    // Reload data from Hive
+    loadClassificationsFromHive();
+
+    print('done');
   }
 
   @override
@@ -55,7 +101,7 @@ class _MyClassificationsState extends State<MyClassifications> {
           automaticallyImplyLeading: false,
           title: const Padding(
             padding: EdgeInsets.all(8.0),
-            child: const Text(
+            child: Text(
               'History',
               style: TextStyle(
                   fontFamily: 'Uber',
@@ -97,7 +143,7 @@ class _MyClassificationsState extends State<MyClassifications> {
                   ),
                   Center(
                     child: FilledButton(
-                      onPressed: () {},
+                      onPressed: syncToDatabase,
                       child: const Text(
                         'Sync to Database',
                       ),

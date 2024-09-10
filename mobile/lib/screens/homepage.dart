@@ -191,7 +191,6 @@ class _HomePageState extends State<HomePage> {
     String imageLocation = selectedImage!.path;
 
     // Add additional fields to the classification map
-    classificatoinMap!['userId'] = currentUser!.uid;
     classificatoinMap!['timestamp'] = DateTime.now();
     classificatoinMap!['imageLocation'] = imageLocation;
 
