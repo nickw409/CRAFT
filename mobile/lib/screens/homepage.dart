@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:craft/global_variables.dart';
@@ -14,6 +15,7 @@ import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
+import 'package:image/image.dart' as img;
 
 class HomePage extends StatefulWidget {
   static const String id = 'home';
@@ -86,8 +88,30 @@ class _HomePageState extends State<HomePage> {
       return;
     }
 
+    //convert croppedFile to grayscale
+    // Read the image file
+    final File imageFile = File(croppedFile.path);
+    final Uint8List imageBytes = await imageFile.readAsBytes();
+
+    // Decode the image using the image package
+    img.Image? image = img.decodeImage(imageBytes);
+
+    if (image == null) {
+      return;
+    }
+
+    // Convert the image to grayscale
+    img.Image grayscaleImage = img.grayscale(image);
+
+    // Encode the grayscale image back to PNG format
+    final List<int> grayscaleBytes = img.encodePng(grayscaleImage);
+
+    // Save the grayscale image as a new file
+    final File grayscaleFile =
+        await File(croppedFile.path).writeAsBytes(grayscaleBytes);
+
     setState(() {
-      selectedImage = File(croppedFile.path);
+      selectedImage = grayscaleFile;
     });
   }
 
@@ -424,15 +448,18 @@ class _HomePageState extends State<HomePage> {
                                       mainAxisAlignment:
                                           MainAxisAlignment.center,
                                       children: [
-                                        Text(
-                                          'ABOUT\nTUYSAYAN\nWHITE\nWARE',
-                                          style: TextStyle(
-                                            fontSize: 20,
-                                            fontFamily: 'Uber',
-                                            fontWeight: FontWeight.w900,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .onPrimary,
+                                        FittedBox(
+                                          fit: BoxFit.contain,
+                                          child: Text(
+                                            'ABOUT\nTUYSAYAN\nWHITE\nWARE',
+                                            style: TextStyle(
+                                              fontSize: 20,
+                                              fontFamily: 'Uber',
+                                              fontWeight: FontWeight.w900,
+                                              color: Theme.of(context)
+                                                  .colorScheme
+                                                  .onPrimary,
+                                            ),
                                           ),
                                         ),
                                       ],
