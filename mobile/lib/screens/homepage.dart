@@ -636,6 +636,17 @@ class _HomePageState extends State<HomePage> {
                           child: const Text('Edit Classification')),
                     )
                   : Container(),
+
+              // for testing purposes
+              Center(
+                child: FilledButton(
+                    onPressed: () {
+                      var box = Hive.box('classificationBox');
+
+                      box.clear();
+                    },
+                    child: const Text('Clear Local Storage')),
+              ),
             ],
           ),
         ),

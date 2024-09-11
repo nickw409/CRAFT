@@ -62,14 +62,12 @@ class _EditResultsState extends State<EditResults> {
             ),
             const SizedBox(
               width: double.infinity,
-              child: FittedBox(
-                fit: BoxFit.contain,
-                child: Text(
-                  'Edit Results',
-                  style: TextStyle(
-                    fontFamily: 'Uber',
-                    fontWeight: FontWeight.w700,
-                  ),
+              child: Text(
+                'Edit Results',
+                style: TextStyle(
+                  fontSize: 60,
+                  fontFamily: 'Uber',
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ),
