@@ -7,11 +7,32 @@ class AboutTusayan extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<String> imagePaths = [
-      'images/tww1.jpg',
-      'images/tww2.jpg',
-      'images/tww3.jpg',
-      'images/tww4.jpg',
-      'images/tww5.jpg',
+      "images/Tusayan/Tusayan (1).jpg",
+      "images/Tusayan/Tusayan (2).jpg",
+      "images/Tusayan/Tusayan (3).jpg",
+      "images/Tusayan/Tusayan (4).jpg",
+      "images/Tusayan/Tusayan (5).jpg",
+      "images/Tusayan/Tusayan (6).jpg",
+      "images/Tusayan/Tusayan (7).jpg",
+      "images/Tusayan/Tusayan (8).jpg",
+      "images/Tusayan/Tusayan (9).jpg",
+      "images/Tusayan/Tusayan (10).jpg",
+      "images/Tusayan/Tusayan (11).jpg",
+      "images/Tusayan/Tusayan (12).jpg",
+      "images/Tusayan/Tusayan (13).jpg",
+      "images/Tusayan/Tusayan (14).jpg",
+      "images/Tusayan/Tusayan (15).jpg",
+      "images/Tusayan/Tusayan (16).jpg",
+      "images/Tusayan/Tusayan (17).jpg",
+      "images/Tusayan/Tusayan (18).jpg",
+      "images/Tusayan/Tusayan (19).jpg",
+      "images/Tusayan/Tusayan (20).jpg",
+      "images/Tusayan/Tusayan (21).jpg",
+      "images/Tusayan/Tusayan (22).jpg",
+      "images/Tusayan/Tusayan (23).jpg",
+      "images/Tusayan/Tusayan (24).jpg",
+      "images/Tusayan/Tusayan (25).jpg",
+      "images/Tusayan/Tusayan (26).jpg",
     ];
 
     return Scaffold(
@@ -19,6 +40,7 @@ class AboutTusayan extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(
                 height: 16,
@@ -66,7 +88,7 @@ class AboutTusayan extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Kna'a B/W",
+                    "Tusayan B/W",
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 25,
@@ -75,7 +97,7 @@ class AboutTusayan extends StatelessWidget {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    "c 1025-1140",
+                    "c. 1220-1290",
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 18,
@@ -83,7 +105,7 @@ class AboutTusayan extends StatelessWidget {
                   ),
                   SizedBox(height: 16),
                   Text(
-                    'Characteristics:',
+                    'Features',
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 25,
@@ -92,21 +114,28 @@ class AboutTusayan extends StatelessWidget {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    "● Lorem ipsum odor amet, consectetuer adipiscing elit.",
+                    '● Multiple lines of opposing linear dull barbs/"teeth".',
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 18,
                     ),
                   ),
                   Text(
-                    "● Lorem ipsum odor amet, consectetuer adipiscing.",
+                    '● "Spurred" triangles topped with interlocking rectilinear scrolls.',
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 18,
                     ),
                   ),
                   Text(
-                    "● Lorem ipsum odor amet, consectetuer adipiscing elit.",
+                    '● Tightly-wrapped curvilinear scrolls.',
+                    style: TextStyle(
+                      fontFamily: 'Uber',
+                      fontSize: 18,
+                    ),
+                  ),
+                  Text(
+                    '● Massive geometric elements or thick (> 1 cm) lines, often separated by thin parallel lines.',
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 18,

@@ -163,26 +163,6 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  // void saveClassification() async {
-  //   final classifications =
-  //       FirebaseFirestore.instance.collection('classifications');
-
-  //   // TODO: save image to firebase storage
-
-  //   // add the file url to doc.
-
-  //   classificatoinMap!['userId'] = currentUser!.uid;
-  //   classificatoinMap!['timestamp'] = DateTime.now();
-
-  //   print(classificatoinMap);
-  //   classifications.add(classificatoinMap!).then((onValue) {
-  //     // print('Classification saved');
-  //     resetScreen();
-  //   }).catchError((err) {
-  //     print(err);
-  //   });
-  // }
-
   // Saving Data locally
   void saveClassificationLocally() async {
     // Open the Hive box for classifications

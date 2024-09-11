@@ -7,11 +7,31 @@ class AboutBlackMesa extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<String> imagePaths = [
-      'images/tww1.jpg',
-      'images/tww2.jpg',
-      'images/tww3.jpg',
-      'images/tww4.jpg',
-      'images/tww5.jpg',
+      "images/Black_Mesa/Black_Mesa (1).jpg",
+      "images/Black_Mesa/Black_Mesa (2).jpg",
+      "images/Black_Mesa/Black_Mesa (3).jpg",
+      "images/Black_Mesa/Black_Mesa (4).jpg",
+      "images/Black_Mesa/Black_Mesa (5).jpg",
+      "images/Black_Mesa/Black_Mesa (6).jpg",
+      "images/Black_Mesa/Black_Mesa (7).jpg",
+      "images/Black_Mesa/Black_Mesa (8).jpg",
+      "images/Black_Mesa/Black_Mesa (9).jpg",
+      "images/Black_Mesa/Black_Mesa (10).jpg",
+      "images/Black_Mesa/Black_Mesa (11).jpg",
+      "images/Black_Mesa/Black_Mesa (12).jpg",
+      "images/Black_Mesa/Black_Mesa (13).jpg",
+      "images/Black_Mesa/Black_Mesa (14).jpg",
+      "images/Black_Mesa/Black_Mesa (15).jpg",
+      "images/Black_Mesa/Black_Mesa (16).jpg",
+      "images/Black_Mesa/Black_Mesa (17).jpg",
+      "images/Black_Mesa/Black_Mesa (18).jpg",
+      "images/Black_Mesa/Black_Mesa (19).jpg",
+      "images/Black_Mesa/Black_Mesa (20).jpg",
+      "images/Black_Mesa/Black_Mesa (21).jpg",
+      "images/Black_Mesa/Black_Mesa (22).jpg",
+      "images/Black_Mesa/Black_Mesa (23).jpg",
+      "images/Black_Mesa/Black_Mesa (24).jpg",
+      "images/Black_Mesa/Black_Mesa (25).jpg",
     ];
 
     return Scaffold(
@@ -19,6 +39,7 @@ class AboutBlackMesa extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(
                 height: 16,
@@ -66,7 +87,7 @@ class AboutBlackMesa extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Kna'a B/W",
+                    "Black Mesa B/W",
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 25,
@@ -75,7 +96,7 @@ class AboutBlackMesa extends StatelessWidget {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    "c 1025-1140",
+                    "c. 1025-1140",
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 18,
@@ -83,7 +104,7 @@ class AboutBlackMesa extends StatelessWidget {
                   ),
                   SizedBox(height: 16),
                   Text(
-                    'Characteristics:',
+                    'Features',
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 25,
@@ -92,21 +113,21 @@ class AboutBlackMesa extends StatelessWidget {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    "● Lorem ipsum odor amet, consectetuer adipiscing elit.",
+                    "● Darker/bolder than Kana'a.",
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 18,
                     ),
                   ),
                   Text(
-                    "● Lorem ipsum odor amet, consectetuer adipiscing.",
+                    "● Massive geometric elements (triangles, rectangles, diamonds and squares).",
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 18,
                     ),
                   ),
                   Text(
-                    "● Lorem ipsum odor amet, consectetuer adipiscing elit.",
+                    "● Thick lines and isosceles triangles with pendant dots.",
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 18,

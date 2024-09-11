@@ -7,11 +7,26 @@ class AboutDogoszhi extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<String> imagePaths = [
-      'images/tww1.jpg',
-      'images/tww2.jpg',
-      'images/tww3.jpg',
-      'images/tww4.jpg',
-      'images/tww5.jpg',
+      "images/Dogoszhi/Dogoszhi (1).jpg",
+      "images/Dogoszhi/Dogoszhi (2).jpg",
+      "images/Dogoszhi/Dogoszhi (3).jpg",
+      "images/Dogoszhi/Dogoszhi (4).jpg",
+      "images/Dogoszhi/Dogoszhi (5).jpg",
+      "images/Dogoszhi/Dogoszhi (6).jpg",
+      "images/Dogoszhi/Dogoszhi (7).jpg",
+      "images/Dogoszhi/Dogoszhi (8).jpg",
+      "images/Dogoszhi/Dogoszhi (9).jpg",
+      "images/Dogoszhi/Dogoszhi (10).jpg",
+      "images/Dogoszhi/Dogoszhi (11).jpg",
+      "images/Dogoszhi/Dogoszhi (12).jpg",
+      "images/Dogoszhi/Dogoszhi (13).jpg",
+      "images/Dogoszhi/Dogoszhi (14).jpg",
+      "images/Dogoszhi/Dogoszhi (15).jpg",
+      "images/Dogoszhi/Dogoszhi (16).jpg",
+      "images/Dogoszhi/Dogoszhi (17).jpg",
+      "images/Dogoszhi/Dogoszhi (18).jpg",
+      "images/Dogoszhi/Dogoszhi (19).jpg",
+      "images/Dogoszhi/Dogoszhi (20).jpg",
     ];
 
     return Scaffold(
@@ -19,6 +34,7 @@ class AboutDogoszhi extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(
                 height: 16,
@@ -66,7 +82,7 @@ class AboutDogoszhi extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Kna'a B/W",
+                    "Dogoszhi B/W",
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 25,
@@ -75,7 +91,7 @@ class AboutDogoszhi extends StatelessWidget {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    "c 1025-1140",
+                    "c. 1030-1290",
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 18,
@@ -83,7 +99,7 @@ class AboutDogoszhi extends StatelessWidget {
                   ),
                   SizedBox(height: 16),
                   Text(
-                    'Characteristics:',
+                    'Features',
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 25,
@@ -92,21 +108,14 @@ class AboutDogoszhi extends StatelessWidget {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    "● Lorem ipsum odor amet, consectetuer adipiscing elit.",
+                    "● Parallel lines filled with diagonal hachures, sometimes in curving \"wing\" or \"claw\".",
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 18,
                     ),
                   ),
                   Text(
-                    "● Lorem ipsum odor amet, consectetuer adipiscing.",
-                    style: TextStyle(
-                      fontFamily: 'Uber',
-                      fontSize: 18,
-                    ),
-                  ),
-                  Text(
-                    "● Lorem ipsum odor amet, consectetuer adipiscing elit.",
+                    "● Sweeping and often interlocking hachure rectilinear and curvilinear patterns.",
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 18,

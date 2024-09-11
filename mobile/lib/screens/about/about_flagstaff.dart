@@ -7,11 +7,31 @@ class AboutFlagstaff extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<String> imagePaths = [
-      'images/tww1.jpg',
-      'images/tww2.jpg',
-      'images/tww3.jpg',
-      'images/tww4.jpg',
-      'images/tww5.jpg',
+      "images/Flagstaff/Flagstaff (1).jpg",
+      "images/Flagstaff/Flagstaff (2).jpg",
+      "images/Flagstaff/Flagstaff (3).jpg",
+      "images/Flagstaff/Flagstaff (4).jpg",
+      "images/Flagstaff/Flagstaff (5).jpg",
+      "images/Flagstaff/Flagstaff (6).jpg",
+      "images/Flagstaff/Flagstaff (7).jpg",
+      "images/Flagstaff/Flagstaff (8).jpg",
+      "images/Flagstaff/Flagstaff (9).jpg",
+      "images/Flagstaff/Flagstaff (10).jpg",
+      "images/Flagstaff/Flagstaff (11).jpg",
+      "images/Flagstaff/Flagstaff (12).jpg",
+      "images/Flagstaff/Flagstaff (13).jpg",
+      "images/Flagstaff/Flagstaff (14).jpg",
+      "images/Flagstaff/Flagstaff (15).jpg",
+      "images/Flagstaff/Flagstaff (16).jpg",
+      "images/Flagstaff/Flagstaff (17).jpg",
+      "images/Flagstaff/Flagstaff (18).jpg",
+      "images/Flagstaff/Flagstaff (19).jpg",
+      "images/Flagstaff/Flagstaff (20).jpg",
+      "images/Flagstaff/Flagstaff (21).jpg",
+      "images/Flagstaff/Flagstaff (22).jpg",
+      "images/Flagstaff/Flagstaff (23).jpg",
+      "images/Flagstaff/Flagstaff (24).jpg",
+      "images/Flagstaff/Flagstaff (25).jpg",
     ];
 
     return Scaffold(
@@ -19,6 +39,7 @@ class AboutFlagstaff extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(
                 height: 16,
@@ -66,7 +87,7 @@ class AboutFlagstaff extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Kna'a B/W",
+                    "Flagstaff B/W",
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 25,
@@ -75,7 +96,7 @@ class AboutFlagstaff extends StatelessWidget {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    "c 1025-1140",
+                    "c. 1140-1220",
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 18,
@@ -83,7 +104,7 @@ class AboutFlagstaff extends StatelessWidget {
                   ),
                   SizedBox(height: 16),
                   Text(
-                    'Characteristics:',
+                    'Features',
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 25,
@@ -92,21 +113,28 @@ class AboutFlagstaff extends StatelessWidget {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    "● Lorem ipsum odor amet, consectetuer adipiscing elit.",
+                    "● Rectilinear interlocking scrolls.",
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 18,
                     ),
                   ),
                   Text(
-                    "● Lorem ipsum odor amet, consectetuer adipiscing.",
+                    "● Sharply-barbed lines opposing other barbed lines.",
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 18,
                     ),
                   ),
                   Text(
-                    "● Lorem ipsum odor amet, consectetuer adipiscing elit.",
+                    "● Checkerboard patterns with central dots.",
+                    style: TextStyle(
+                      fontFamily: 'Uber',
+                      fontSize: 18,
+                    ),
+                  ),
+                  Text(
+                    "● Basketweave patterns.",
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 18,

@@ -7,11 +7,22 @@ class AboutKnaa extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<String> imagePaths = [
-      'images/tww1.jpg',
-      'images/tww2.jpg',
-      'images/tww3.jpg',
-      'images/tww4.jpg',
-      'images/tww5.jpg',
+      "images/Kanaa/Kanaa (1).jpg",
+      "images/Kanaa/Kanaa (2).jpg",
+      "images/Kanaa/Kanaa (3).jpg",
+      "images/Kanaa/Kanaa (4).jpg",
+      "images/Kanaa/Kanaa (5).jpg",
+      "images/Kanaa/Kanaa (6).jpg",
+      "images/Kanaa/Kanaa (7).jpg",
+      "images/Kanaa/Kanaa (8).jpg",
+      "images/Kanaa/Kanaa (9).jpg",
+      "images/Kanaa/Kanaa (10).jpg",
+      "images/Kanaa/Kanaa (11).jpg",
+      "images/Kanaa/Kanaa (12).jpg",
+      "images/Kanaa/Kanaa (13).jpg",
+      "images/Kanaa/Kanaa (14).jpg",
+      "images/Kanaa/Kanaa (15).jpg",
+      "images/Kanaa/Kanaa (16).jpg",
     ];
 
     return Scaffold(
@@ -19,6 +30,7 @@ class AboutKnaa extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(
                 height: 16,
@@ -75,7 +87,7 @@ class AboutKnaa extends StatelessWidget {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    "c 1025-1140",
+                    "c. 825-1025",
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 18,
@@ -83,7 +95,7 @@ class AboutKnaa extends StatelessWidget {
                   ),
                   SizedBox(height: 16),
                   Text(
-                    'Characteristics:',
+                    'Features',
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 25,
@@ -92,21 +104,28 @@ class AboutKnaa extends StatelessWidget {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    "● Lorem ipsum odor amet, consectetuer adipiscing elit.",
+                    "● Fine lines rendered with multiple, overlapping brush strokes.",
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 18,
                     ),
                   ),
                   Text(
-                    "● Lorem ipsum odor amet, consectetuer adipiscing.",
+                    "● Overlapping line junctions.",
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 18,
                     ),
                   ),
                   Text(
-                    "● Lorem ipsum odor amet, consectetuer adipiscing elit.",
+                    "● Small ticking lines or elongated dots attached to longer lines.",
+                    style: TextStyle(
+                      fontFamily: 'Uber',
+                      fontSize: 18,
+                    ),
+                  ),
+                  Text(
+                    "● Pendant triangles or chevrons.",
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 18,

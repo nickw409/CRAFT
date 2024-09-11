@@ -33,6 +33,13 @@ dev_dependencies:
 flutter:
   assets:
     - images/
+    - images/Kanaa/
+    - images/Black_Mesa/
+    - images/Sosi/
+    - images/Dogoszhi/
+    - images/Flagstaff/
+    - images/Tusayan/
+    - images/Kayenta/
   uses-material-design: true
   fonts: 
     - family: Uber

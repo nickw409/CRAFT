@@ -7,11 +7,18 @@ class AboutKayenta extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<String> imagePaths = [
-      'images/tww1.jpg',
-      'images/tww2.jpg',
-      'images/tww3.jpg',
-      'images/tww4.jpg',
-      'images/tww5.jpg',
+      "images/Kayenta/Kayenta (1).jpg",
+      "images/Kayenta/Kayenta (2).jpg",
+      "images/Kayenta/Kayenta (3).jpg",
+      "images/Kayenta/Kayenta (4).jpg",
+      "images/Kayenta/Kayenta (5).jpg",
+      "images/Kayenta/Kayenta (6).jpg",
+      "images/Kayenta/Kayenta (7).jpg",
+      "images/Kayenta/Kayenta (8).jpg",
+      "images/Kayenta/Kayenta (9).jpg",
+      "images/Kayenta/Kayenta (10).jpg",
+      "images/Kayenta/Kayenta (11).jpg",
+      "images/Kayenta/Kayenta (12).jpg",
     ];
 
     return Scaffold(
@@ -19,6 +26,7 @@ class AboutKayenta extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(
                 height: 16,
@@ -66,7 +74,7 @@ class AboutKayenta extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Kna'a B/W",
+                    "Kayenta B/W",
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 25,
@@ -75,7 +83,7 @@ class AboutKayenta extends StatelessWidget {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    "c 1025-1140",
+                    "c. 1240-1290",
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 18,
@@ -83,7 +91,7 @@ class AboutKayenta extends StatelessWidget {
                   ),
                   SizedBox(height: 16),
                   Text(
-                    'Characteristics:',
+                    'Features',
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 25,
@@ -92,21 +100,14 @@ class AboutKayenta extends StatelessWidget {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    "● Lorem ipsum odor amet, consectetuer adipiscing elit.",
+                    "● Distinguished from Tusayan B/W by fine cross-hatching (\"mosquito net\") drawn over other designs.",
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 18,
                     ),
                   ),
                   Text(
-                    "● Lorem ipsum odor amet, consectetuer adipiscing.",
-                    style: TextStyle(
-                      fontFamily: 'Uber',
-                      fontSize: 18,
-                    ),
-                  ),
-                  Text(
-                    "● Lorem ipsum odor amet, consectetuer adipiscing elit.",
+                    "● Massive black designs.",
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 18,

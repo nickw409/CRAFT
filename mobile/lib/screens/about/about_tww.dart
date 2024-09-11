@@ -1,5 +1,5 @@
-import 'package:carousel_slider/carousel_slider.dart';
 import 'package:craft/screens/about/about_black_mesa.dart';
+import 'package:craft/screens/about/about_dogoszhi.dart';
 import 'package:craft/screens/about/about_flagstaff.dart';
 import 'package:craft/screens/about/about_kayenta.dart';
 import 'package:craft/screens/about/about_knaa.dart';
@@ -13,19 +13,12 @@ class AboutTww extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<String> imagePaths = [
-      'images/tww1.jpg',
-      'images/tww2.jpg',
-      'images/tww3.jpg',
-      'images/tww4.jpg',
-      'images/tww5.jpg',
-    ];
-
     return Scaffold(
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(
                 height: 16,
@@ -44,150 +37,98 @@ class AboutTww extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(
-                height: 16,
+              const Text(
+                'Manufactured',
+                style: TextStyle(
+                  fontFamily: 'Uber',
+                  fontSize: 25,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
-              CarouselSlider(
-                items: imagePaths.map((imagePath) {
-                  return Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: ClipRRect(
-                      borderRadius:
-                          BorderRadius.circular(5), // Apply rounded corners
-                      child: Image.asset(imagePath, fit: BoxFit.cover),
-                    ),
-                  );
-                }).toList(),
-                options: CarouselOptions(
-                  aspectRatio:
-                      1.5, // Ensure aspect ratio is the same for all images
-                  enlargeCenterPage: true,
-                  enableInfiniteScroll: true,
-                  initialPage: 0, // Start from the first page
-                  autoPlay: true,
-                  enlargeStrategy: CenterPageEnlargeStrategy.height,
+              const Text(
+                "Primarily between modern day Tuba City and Kayenta (Kayenta Series).",
+                style: TextStyle(
+                  fontFamily: 'Uber',
+                  fontSize: 18,
                 ),
               ),
               const SizedBox(height: 16),
-              const ExpansionTile(
-                subtitle: Text(
-                  'Learn More',
-                  style: TextStyle(
-                    fontFamily: 'Uber',
-                    fontSize: 15,
-                  ),
+              const Text(
+                'Distribution:',
+                style: TextStyle(
+                  fontFamily: 'Uber',
+                  fontSize: 25,
+                  fontWeight: FontWeight.w700,
                 ),
-                title: Text(
-                  'Tuyasan White Ware',
-                  style: TextStyle(
-                    fontFamily: 'Uber',
-                    fontSize: 25,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-                children: [
-                  Text(
-                    'Manufactured:',
-                    style: TextStyle(
-                      fontFamily: 'Uber',
-                      fontSize: 25,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    "Lorem ipsum odor amet, consectetuer adipiscing elit.",
-                    style: TextStyle(
-                      fontFamily: 'Uber',
-                      fontSize: 18,
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    'Distribution:',
-                    style: TextStyle(
-                      fontFamily: 'Uber',
-                      fontSize: 25,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    "Lorem ipsum odor amet, consectetuer adipiscing elit.",
-                    style: TextStyle(
-                      fontFamily: 'Uber',
-                      fontSize: 18,
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    'Physical Characteristics:',
-                    style: TextStyle(
-                      fontFamily: 'Uber',
-                      fontSize: 25,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    "Paste Color: Lorem ipsum odor amet, consectetuer adipiscing elit. Ridiculus convallis aliquet ridiculus eleifend gravida. Finibus est rutrum posuere quisque magna consequat.",
-                    style: TextStyle(
-                      fontFamily: 'Uber',
-                      fontSize: 18,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    "Temper: Lorem ipsum odor amet, consectetuer adipiscing elit. Ridiculus convallis aliquet ridiculus eleifend gravida. Finibus est rutrum posuere quisque magna consequat.",
-                    style: TextStyle(
-                      fontFamily: 'Uber',
-                      fontSize: 18,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    "Surface Treatment: Lorem ipsum odor amet, consectetuer adipiscing elit. Ridiculus convallis aliquet ridiculus eleifend gravida. Finibus est rutrum posuere quisque magna consequat.",
-                    style: TextStyle(
-                      fontFamily: 'Uber',
-                      fontSize: 18,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    "Paint: Lorem ipsum odor amet, consectetuer adipiscing elit. Ridiculus convallis aliquet ridiculus eleifend gravida. Finibus est rutrum posuere quisque magna consequat.",
-                    style: TextStyle(
-                      fontFamily: 'Uber',
-                      fontSize: 18,
-                    ),
-                  ),
-                  SizedBox(height: 16),
-                  Text(
-                    'Other White Ware Types In Area:',
-                    style: TextStyle(
-                      fontFamily: 'Uber',
-                      fontSize: 25,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    "Cibola: Lorem ipsum odor amet, consectetuer adipiscing elit. Ridiculus convallis aliquet ridiculus eleifend gravida. Finibus est rutrum posuere quisque magna consequat.",
-                    style: TextStyle(
-                      fontFamily: 'Uber',
-                      fontSize: 18,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Text(
-                    "Little Colorado: Lorem ipsum odor amet, consectetuer adipiscing elit. Ridiculus convallis aliquet ridiculus eleifend gravida. Finibus est rutrum posuere quisque magna consequat.",
-                    style: TextStyle(
-                      fontFamily: 'Uber',
-                      fontSize: 18,
-                    ),
-                  ),
-                  SizedBox(height: 16)
-                ],
               ),
+              const Text(
+                "Throughout much of the US Southwest.",
+                style: TextStyle(
+                  fontFamily: 'Uber',
+                  fontSize: 18,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Physical Characteristics:',
+                style: TextStyle(
+                  fontFamily: 'Uber',
+                  fontSize: 25,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const Text(
+                "Paste color: Light gray to white, often with carbon streak.",
+                style: TextStyle(
+                  fontFamily: 'Uber',
+                  fontSize: 18,
+                ),
+              ),
+              const Text(
+                "Temper: Mostly fine sand; later types may have sherd or volcanic temper.",
+                style: TextStyle(
+                  fontFamily: 'Uber',
+                  fontSize: 18,
+                ),
+              ),
+              const Text(
+                "Surface Treatment: Polished. Slip uncommon in early types, but does occur in later types. Temper does not protrude through surface.",
+                style: TextStyle(
+                  fontFamily: 'Uber',
+                  fontSize: 18,
+                ),
+              ),
+              const Text(
+                "Paint: Organic, soaks into surface. Blurred edges. Bidahochi type has mineral paint, sharp edges, dark.",
+                style: TextStyle(
+                  fontFamily: 'Uber',
+                  fontSize: 18,
+                ),
+              ),
+              const SizedBox(height: 16),
+              const Text(
+                'Other White Ware Types In Area',
+                style: TextStyle(
+                  fontFamily: 'Uber',
+                  fontSize: 25,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const Text(
+                "Cibola: Light gray to white paste, often with carbon streak; sand, sherd or both temper; no slip early, thin later; mineral paint.",
+                style: TextStyle(
+                  fontFamily: 'Uber',
+                  fontSize: 18,
+                ),
+              ),
+              const Text(
+                "Little Colorado White Ware: Darker paste color; thick white slip; sherd temper, sometimes with sand; organic paint.",
+                style: TextStyle(
+                  fontFamily: 'Uber',
+                  fontSize: 18,
+                ),
+              ),
+              const SizedBox(height: 16),
               ExpansionTile(
                 title: const Text(
                   'Types',
@@ -291,6 +232,24 @@ class AboutTww extends StatelessWidget {
                         },
                         child: const Text(
                           "Tusayan",
+                          style: TextStyle(
+                            fontFamily: 'Uber',
+                            fontSize: 20,
+                          ),
+                        ),
+                      ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            PageTransition(
+                              child: const AboutDogoszhi(),
+                              type: PageTransitionType.fade,
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          "Dogoszhi",
                           style: TextStyle(
                             fontFamily: 'Uber',
                             fontSize: 20,

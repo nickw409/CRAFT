@@ -7,11 +7,31 @@ class AboutSosi extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final List<String> imagePaths = [
-      'images/tww1.jpg',
-      'images/tww2.jpg',
-      'images/tww3.jpg',
-      'images/tww4.jpg',
-      'images/tww5.jpg',
+      "images/Sosi/Sosi (1).jpg",
+      "images/Sosi/Sosi (2).jpg",
+      "images/Sosi/Sosi (3).jpg",
+      "images/Sosi/Sosi (4).jpg",
+      "images/Sosi/Sosi (5).jpg",
+      "images/Sosi/Sosi (6).jpg",
+      "images/Sosi/Sosi (7).jpg",
+      "images/Sosi/Sosi (8).jpg",
+      "images/Sosi/Sosi (9).jpg",
+      "images/Sosi/Sosi (10).jpg",
+      "images/Sosi/Sosi (11).jpg",
+      "images/Sosi/Sosi (12).jpg",
+      "images/Sosi/Sosi (13).jpg",
+      "images/Sosi/Sosi (14).jpg",
+      "images/Sosi/Sosi (15).jpg",
+      "images/Sosi/Sosi (16).jpg",
+      "images/Sosi/Sosi (17).jpg",
+      "images/Sosi/Sosi (18).jpg",
+      "images/Sosi/Sosi (19).jpg",
+      "images/Sosi/Sosi (20).jpg",
+      "images/Sosi/Sosi (21).jpg",
+      "images/Sosi/Sosi (22).jpg",
+      "images/Sosi/Sosi (23).jpg",
+      "images/Sosi/Sosi (24).jpg",
+      "images/Sosi/Sosi (25).jpg",
     ];
 
     return Scaffold(
@@ -19,6 +39,7 @@ class AboutSosi extends StatelessWidget {
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(
                 height: 16,
@@ -66,7 +87,7 @@ class AboutSosi extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    "Kna'a B/W",
+                    "Sosi B/W",
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 25,
@@ -75,7 +96,7 @@ class AboutSosi extends StatelessWidget {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    "c 1025-1140",
+                    "c. 1065-1200",
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 18,
@@ -83,7 +104,7 @@ class AboutSosi extends StatelessWidget {
                   ),
                   SizedBox(height: 16),
                   Text(
-                    'Characteristics:',
+                    'Features',
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 25,
@@ -92,21 +113,14 @@ class AboutSosi extends StatelessWidget {
                   ),
                   SizedBox(height: 8),
                   Text(
-                    "● Lorem ipsum odor amet, consectetuer adipiscing elit.",
+                    "● Medium painted lines that repeatedly fold back on themselves with acute or right angles.",
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 18,
                     ),
                   ),
                   Text(
-                    "● Lorem ipsum odor amet, consectetuer adipiscing.",
-                    style: TextStyle(
-                      fontFamily: 'Uber',
-                      fontSize: 18,
-                    ),
-                  ),
-                  Text(
-                    "● Lorem ipsum odor amet, consectetuer adipiscing elit.",
+                    "● Attached, large barbed elements.",
                     style: TextStyle(
                       fontFamily: 'Uber',
                       fontSize: 18,
