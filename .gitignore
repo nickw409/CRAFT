@@ -4,7 +4,7 @@ __pycache__
 
 # Too big to fit on Github
 image_data/
-mobile/model/
+*.tflite
 
 # Not needed for development
 Testing/
