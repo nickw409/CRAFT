@@ -32,12 +32,22 @@ class _HomePageState extends State<HomePage> {
   String? classificaitonData;
   Position? currentPosition;
 
+  late Interpreter interpreter;
+  late List<String> labels;
+
   Map<String, dynamic>? classificatoinMap;
 
   @override
   void initState() {
     super.initState();
     getCurrentUser();
+  }
+
+  Future<void> loadModel() async {
+    interpreter = await Interpreter.fromAsset('asset/ResNet152V2.tflite');
+    final labelsData = await DefaultAssetBundle.of(context)
+        .loadString('assets/tww_labels.txt');
+    labels = labelsData.split('\n');
   }
 
   Future<void> getCurrentUser() async {
@@ -185,6 +195,7 @@ class _HomePageState extends State<HomePage> {
     });
 
     // TODO: implement classification model
+    var output = List.filled(labels.length, 0).reshape([1, labels.length]);
   }
 
   Future<Position> _determinePosition() async {
