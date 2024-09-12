@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:math';
 import 'dart:typed_data';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:craft/global_variables.dart';
 import 'package:craft/provider/login_provider.dart';
@@ -17,6 +16,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 import 'package:image/image.dart' as img;
+import 'package:tflite/tflite.dart';
 
 class HomePage extends StatefulWidget {
   static const String id = 'home';
@@ -38,6 +38,16 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     getCurrentUser();
+    loadModel();
+  }
+
+  Future<void> loadModel() async {
+    // Load the model
+    var res = await Tflite.loadModel(
+      model: 'model/ResNet152V2.tflite',
+      labels: 'model/tww_labels.txt',
+    );
+    print(res);
   }
 
   Future<void> getCurrentUser() async {
@@ -183,6 +193,20 @@ class _HomePageState extends State<HomePage> {
       classificaitonData =
           "Flagstaff: Confidence 0.123\nBlack Mesa: Confidence 0.123\nKnaa: Confidence 0.123";
     });
+
+    double meanSubtract =
+        127.5; //ResNet152V2 requires image originally in 0 to 255 to be -1.0 to 1.0
+    double stdDivide = 127.5;
+
+    var output = await Tflite.runModelOnImage(
+      path: selectedImage!.path,
+      numResults: 3,
+      threshold: 0.1,
+      imageMean: meanSubtract,
+      imageStd: stdDivide,
+    );
+
+    print(output!.length);
   }
 
   Future<Position> _determinePosition() async {
@@ -241,8 +265,7 @@ class _HomePageState extends State<HomePage> {
       await box.add(classificatoinMap!);
       resetScreen(); // Reset the screen after saving
     } catch (err) {
-      print('Error saving classification to Hive: $err');
-      // You can add error handling here (e.g., show a message to the user)
+      print('Error saving classification: $err');
     }
   }
 

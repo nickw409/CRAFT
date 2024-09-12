@@ -4,6 +4,7 @@ __pycache__
 
 # Too big to fit on Github
 image_data/
+mobile/model/
 
 # Not needed for development
 Testing/

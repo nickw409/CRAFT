@@ -14,7 +14,7 @@ dependencies:
   firebase_storage: ^12.2.0
   flutter:
     sdk: flutter
-  geolocator: ^12.0.0
+  geolocator: ^13.0.1
   google_maps_flutter: ^2.6.0
   hive: ^2.2.3
   hive_flutter: ^1.1.0
@@ -25,6 +25,7 @@ dependencies:
   provider: ^6.1.2
   url_launcher: ^6.3.0
   image: ^4.2.0
+  tflite: ^1.1.2
 
 dev_dependencies:
   flutter_test:
@@ -33,6 +34,7 @@ dev_dependencies:
 
 flutter:
   assets:
+    - model/
     - images/
     - images/Kanaa/
     - images/Black_Mesa/
