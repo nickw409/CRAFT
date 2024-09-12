@@ -25,6 +25,7 @@ dependencies:
   provider: ^6.1.2
   url_launcher: ^6.3.0
   image: ^4.2.0
+  tflite_flutter: ^0.11.0
 
 dev_dependencies:
   flutter_test:
@@ -33,7 +34,7 @@ dev_dependencies:
 
 flutter:
   assets:
-    - model/
+    - assets/
     - images/
     - images/Kanaa/
     - images/Black_Mesa/
