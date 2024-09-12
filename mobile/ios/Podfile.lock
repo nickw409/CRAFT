@@ -1151,7 +1151,7 @@ PODS:
   - BoringSSL-GRPC/Implementation (0.0.36):
     - BoringSSL-GRPC/Interface (= 0.0.36)
   - BoringSSL-GRPC/Interface (0.0.36)
-  - cloud_firestore (5.4.0):
+  - cloud_firestore (5.4.1):
     - Firebase/Firestore (= 11.0.0)
     - firebase_core
     - Flutter
@@ -1166,14 +1166,14 @@ PODS:
   - Firebase/Storage (11.0.0):
     - Firebase/CoreOnly
     - FirebaseStorage (~> 11.0.0)
-  - firebase_auth (5.2.0):
+  - firebase_auth (5.2.1):
     - Firebase/Auth (= 11.0.0)
     - firebase_core
     - Flutter
-  - firebase_core (3.4.0):
+  - firebase_core (3.4.1):
     - Firebase/CoreOnly (= 11.0.0)
     - Flutter
-  - firebase_storage (12.2.0):
+  - firebase_storage (12.3.0):
     - Firebase/Storage (= 11.0.0)
     - firebase_core
     - Flutter
@@ -1365,6 +1365,12 @@ PODS:
     - Flutter
     - FlutterMacOS
   - RecaptchaInterop (100.0.0)
+  - TensorFlowLiteC (2.17.0):
+    - TensorFlowLiteC/Core (= 2.17.0)
+  - TensorFlowLiteC/Core (2.17.0)
+  - tflite (1.1.2):
+    - Flutter
+    - TensorFlowLiteC
   - TOCropViewController (2.7.4)
   - url_launcher_ios (0.0.1):
     - Flutter
@@ -1380,6 +1386,7 @@ DEPENDENCIES:
   - image_cropper (from `.symlinks/plugins/image_cropper/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
+  - tflite (from `.symlinks/plugins/tflite/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
 
 SPEC REPOS:
@@ -1406,6 +1413,7 @@ SPEC REPOS:
     - leveldb-library
     - nanopb
     - RecaptchaInterop
+    - TensorFlowLiteC
     - TOCropViewController
 
 EXTERNAL SOURCES:
@@ -1429,17 +1437,19 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/image_picker_ios/ios"
   path_provider_foundation:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
+  tflite:
+    :path: ".symlinks/plugins/tflite/ios"
   url_launcher_ios:
     :path: ".symlinks/plugins/url_launcher_ios/ios"
 
 SPEC CHECKSUMS:
   abseil: d121da9ef7e2ff4cab7666e76c5a3e0915ae08c3
   BoringSSL-GRPC: ca6a8e5d04812fce8ffd6437810c2d46f925eaeb
-  cloud_firestore: c44f5943a6f7fc1775cfa4a1e980a0024ed565ee
+  cloud_firestore: 6e3caf23a764c0ca66606ce8034d3f395f4d8c64
   Firebase: 9f574c08c2396885b5e7e100ed4293d956218af9
-  firebase_auth: 16ac5db3d064db837ecd845080d7e18e4be7c66d
-  firebase_core: ceec591a66629daaee82d3321551692c4a871493
-  firebase_storage: 3b166e39a19e95b6a2d1c33b4ebff41e12a7615b
+  firebase_auth: 78dab5e2826921865b33799c66ce7868542beed0
+  firebase_core: ba84e940cf5cbbc601095f86556560937419195c
+  firebase_storage: f333c5a5bd7c4d01fb5a3fdf96493262e4cb779f
   FirebaseAppCheckInterop: e59b52f2c0e188e6ba77b9e3f6acead2117f2abf
   FirebaseAuth: d5cf28be74d7e82257f6a3f717509eff70d3cf4a
   FirebaseAuthInterop: 49e8faefaf254ce578e278a84a8fe0aebe23b546
@@ -1465,6 +1475,8 @@ SPEC CHECKSUMS:
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   RecaptchaInterop: 7d1a4a01a6b2cb1610a47ef3f85f0c411434cb21
+  TensorFlowLiteC: eac6d689a8d391d1b202dc59e3d9165ba64aaf73
+  tflite: 7acd11db0915e2d90ab90474413068568eb605f0
   TOCropViewController: 80b8985ad794298fb69d3341de183f33d1853654
   url_launcher_ios: 5334b05cef931de560670eeae103fd3e431ac3fe
 
