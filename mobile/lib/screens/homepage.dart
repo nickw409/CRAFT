@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -123,8 +124,44 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
+  Position randomizePosition(Position position, double distanceMeters) {
+    // Constants
+    const double earthRadius = 6371000; // Earth's radius in meters
+
+    // Convert distanceMeters meters to degrees
+    double randomDistance = distanceMeters; // 500 meters
+    double latOffset = (randomDistance / earthRadius) * (180 / pi);
+    double lonOffset =
+        (randomDistance / (earthRadius * cos(pi * position.latitude / 180))) *
+            (180 / pi);
+
+    // Generate random numbers to decide the direction of change
+    double randomLat = (Random().nextDouble() * 2 - 1) * latOffset;
+    double randomLon = (Random().nextDouble() * 2 - 1) * lonOffset;
+
+    // Calculate new random position
+    double newLatitude = position.latitude + randomLat;
+    double newLongitude = position.longitude + randomLon;
+
+    return Position(
+      latitude: newLatitude,
+      longitude: newLongitude,
+      headingAccuracy: position.headingAccuracy,
+      altitudeAccuracy: position.altitudeAccuracy,
+      timestamp: position.timestamp,
+      accuracy: position.accuracy,
+      altitude: position.altitude,
+      heading: position.heading,
+      speed: position.speed,
+      speedAccuracy: position.speedAccuracy,
+    );
+  }
+
   void classifyImage() async {
     Position pos = await _determinePosition();
+
+    //randomize the position by 500 meters
+    pos = randomizePosition(pos, 500);
 
     classificatoinMap = {
       'primaryClassification': 'Flagstaff',
@@ -596,8 +633,12 @@ class _HomePageState extends State<HomePage> {
                           padding: const EdgeInsets.all(12.0),
                           child: Column(
                             children: [
+                              const Text('Primary Classification:'),
                               Text(
-                                  "Primary Classification: ${classificatoinMap!['primaryClassification'].toString()} [${classificatoinMap!['allClassificatoins']?[classificatoinMap!['primaryClassification'].toString()].toString()}]"),
+                                "${classificatoinMap!['primaryClassification'].toString()} [${classificatoinMap!['allClassificatoins']?[classificatoinMap!['primaryClassification'].toString()].toString()}]",
+                                style: const TextStyle(
+                                    fontSize: 20, fontWeight: FontWeight.bold),
+                              ),
                               Text(
                                   "Location: ${classificatoinMap!['lattitude'].toStringAsFixed(4)}, ${classificatoinMap!['longitude'].toStringAsFixed(4)}"),
                               // const Text("Other Classifications:"),
