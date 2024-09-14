@@ -1367,6 +1367,28 @@ PODS:
     - Flutter
     - FlutterMacOS
   - RecaptchaInterop (100.0.0)
+  - TensorFlowLiteC (2.12.0):
+    - TensorFlowLiteC/Core (= 2.12.0)
+  - TensorFlowLiteC/Core (2.12.0)
+  - TensorFlowLiteC/CoreML (2.12.0):
+    - TensorFlowLiteC/Core
+  - TensorFlowLiteC/Metal (2.12.0):
+    - TensorFlowLiteC/Core
+  - TensorFlowLiteSwift (2.12.0):
+    - TensorFlowLiteSwift/Core (= 2.12.0)
+  - TensorFlowLiteSwift/Core (2.12.0):
+    - TensorFlowLiteC (= 2.12.0)
+  - TensorFlowLiteSwift/CoreML (2.12.0):
+    - TensorFlowLiteC/CoreML (= 2.12.0)
+    - TensorFlowLiteSwift/Core (= 2.12.0)
+  - TensorFlowLiteSwift/Metal (2.12.0):
+    - TensorFlowLiteC/Metal (= 2.12.0)
+    - TensorFlowLiteSwift/Core (= 2.12.0)
+  - tflite_flutter (0.0.1):
+    - Flutter
+    - TensorFlowLiteSwift (= 2.12.0)
+    - TensorFlowLiteSwift/CoreML (= 2.12.0)
+    - TensorFlowLiteSwift/Metal (= 2.12.0)
   - tflite_flutter_helper_plus (0.0.1):
     - Flutter
   - tflite_flutter_plus (0.0.1):
@@ -1387,6 +1409,7 @@ DEPENDENCIES:
   - image_cropper (from `.symlinks/plugins/image_cropper/ios`)
   - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
   - path_provider_foundation (from `.symlinks/plugins/path_provider_foundation/darwin`)
+  - tflite_flutter (from `.symlinks/plugins/tflite_flutter/ios`)
   - tflite_flutter_helper_plus (from `.symlinks/plugins/tflite_flutter_helper_plus/ios`)
   - tflite_flutter_plus (from `.symlinks/plugins/tflite_flutter_plus/ios`)
   - url_launcher_ios (from `.symlinks/plugins/url_launcher_ios/ios`)
@@ -1415,6 +1438,8 @@ SPEC REPOS:
     - leveldb-library
     - nanopb
     - RecaptchaInterop
+    - TensorFlowLiteC
+    - TensorFlowLiteSwift
     - TOCropViewController
 
 EXTERNAL SOURCES:
@@ -1440,6 +1465,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/image_picker_ios/ios"
   path_provider_foundation:
     :path: ".symlinks/plugins/path_provider_foundation/darwin"
+  tflite_flutter:
+    :path: ".symlinks/plugins/tflite_flutter/ios"
   tflite_flutter_helper_plus:
     :path: ".symlinks/plugins/tflite_flutter_helper_plus/ios"
   tflite_flutter_plus:
@@ -1481,6 +1508,9 @@ SPEC CHECKSUMS:
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   path_provider_foundation: 2b6b4c569c0fb62ec74538f866245ac84301af46
   RecaptchaInterop: 7d1a4a01a6b2cb1610a47ef3f85f0c411434cb21
+  TensorFlowLiteC: 20785a69299185a379ba9852b6625f00afd7984a
+  TensorFlowLiteSwift: 3a4928286e9e35bdd3e17970f48e53c80d25e793
+  tflite_flutter: 9433d086a3060431bbc9f3c7c20d017db0e72d08
   tflite_flutter_helper_plus: 33b8f41f9d67ab70280309ed75ff6c709eb4bec6
   tflite_flutter_plus: f8d7529404eb499ffd29d5682625f8b5b3dddb3a
   TOCropViewController: 80b8985ad794298fb69d3341de183f33d1853654
