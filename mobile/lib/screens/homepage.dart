@@ -47,7 +47,6 @@ class _HomePageState extends State<HomePage> {
   late TfLiteType _outputType;
 
   final String _labelsFileName = 'assets/tww_labels.txt';
-  final int _labelsLength = 7;
 
   Map<String, dynamic>? classificatoinMap;
 
@@ -56,7 +55,6 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     getCurrentUser();
     loadModel();
-    loadLabels();
   }
 
   Future<void> loadModel() async {
@@ -68,16 +66,7 @@ class _HomePageState extends State<HomePage> {
     _outputType = interpreter.getOutputTensor(0).type;
     _outputBuffer = TensorBuffer.createFixedSize(_outputShape, _outputType);
 
-    print("Model successfully");
-  }
-
-  Future<void> loadLabels() async {
     labels = await FileUtil.loadLabels(_labelsFileName);
-    if (labels.length == _labelsLength) {
-      print('Labels loaded successfully');
-    } else {
-      print('Unable to load labels');
-    }
   }
 
   TensorImage _preProcess() {
@@ -217,25 +206,14 @@ class _HomePageState extends State<HomePage> {
 
     setState(() {
       currentPosition = pos;
-      classificaitonData =
-          "Flagstaff: Confidence 0.123\nBlack Mesa: Confidence 0.123\nKnaa: Confidence 0.123";
+      classificaitonData = "Classified";
     });
-
-    // TODO: implement classification model
 
     _inputImage = TensorImage(_inputType);
     _inputImage.loadImage(imageForModel!);
     _inputImage = _preProcess();
 
-    // Initialize output buffer with correct shape
-    // var output = List.filled(1 * 7, 0).reshape([1, 7]);
-
-    print('\n\n\n Tensor:');
-
     interpreter.run(_inputImage.buffer, _outputBuffer.getBuffer());
-
-    // Extract the [7] array from [1, 7]
-    // print('Classification Data: ${_outputBuffer.getDoubleList()}');
 
     Map<String, double> resultMap = {};
 
@@ -260,8 +238,6 @@ class _HomePageState extends State<HomePage> {
         'longitude': pos.longitude,
       };
     });
-
-    print(resultMap);
   }
 
   Future<Position> _determinePosition() async {
@@ -299,7 +275,10 @@ class _HomePageState extends State<HomePage> {
     // When we reach here, permissions are granted and we can
     // continue accessing the position of the device.
     return await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.low,
+      locationSettings: const LocationSettings(
+        accuracy: LocationAccuracy.low,
+        distanceFilter: 50,
+      ),
     );
   }
 
