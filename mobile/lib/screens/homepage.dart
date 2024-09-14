@@ -16,7 +16,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 import 'package:image/image.dart' as img;
-import 'package:tflite_flutter/tflite_flutter.dart';
+import 'package:tflite_flutter_helper_plus/tflite_flutter_helper_plus.dart';
+import 'package:tflite_flutter_plus/tflite_flutter_plus.dart';
 
 class HomePage extends StatefulWidget {
   static const String id = 'home';
@@ -31,9 +32,22 @@ class _HomePageState extends State<HomePage> {
   File? selectedImage;
   String? classificaitonData;
   Position? currentPosition;
+  img.Image? imageForModel;
 
   late Interpreter interpreter;
   late List<String> labels;
+
+  late List<int> _inputShape;
+  late List<int> _outputShape;
+
+  late TensorImage _inputImage;
+  late TensorBuffer _outputBuffer;
+
+  late TfLiteType _inputType;
+  late TfLiteType _outputType;
+
+  final String _labelsFileName = 'assets/tww_labels.txt';
+  final int _labelsLength = 7;
 
   Map<String, dynamic>? classificatoinMap;
 
@@ -41,13 +55,40 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     getCurrentUser();
+    loadModel();
+    loadLabels();
   }
 
   Future<void> loadModel() async {
-    interpreter = await Interpreter.fromAsset('asset/ResNet152V2.tflite');
-    final labelsData = await DefaultAssetBundle.of(context)
-        .loadString('assets/tww_labels.txt');
-    labels = labelsData.split('\n');
+    interpreter = await Interpreter.fromAsset('ResNet152V2.tflite');
+
+    _inputShape = interpreter.getInputTensor(0).shape;
+    _outputShape = interpreter.getOutputTensor(0).shape;
+    _inputType = interpreter.getInputTensor(0).type;
+    _outputType = interpreter.getOutputTensor(0).type;
+    _outputBuffer = TensorBuffer.createFixedSize(_outputShape, _outputType);
+
+    print("Model successfully");
+  }
+
+  Future<void> loadLabels() async {
+    labels = await FileUtil.loadLabels(_labelsFileName);
+    if (labels.length == _labelsLength) {
+      print('Labels loaded successfully');
+    } else {
+      print('Unable to load labels');
+    }
+  }
+
+  TensorImage _preProcess() {
+    int cropSize = min(_inputImage.height, _inputImage.width);
+    return ImageProcessorBuilder()
+        .add(ResizeWithCropOrPadOp(cropSize, cropSize))
+        .add(ResizeOp(
+            _inputShape[1], _inputShape[2], ResizeMethod.nearestneighbour))
+        .add(NormalizeOp(0, 255))
+        .build()
+        .process(_inputImage);
   }
 
   Future<void> getCurrentUser() async {
@@ -113,6 +154,7 @@ class _HomePageState extends State<HomePage> {
 
     // Convert the image to grayscale
     img.Image grayscaleImage = img.grayscale(image);
+    imageForModel = grayscaleImage;
 
     // Encode the grayscale image back to PNG format
     final List<int> grayscaleBytes = img.encodePng(grayscaleImage);
@@ -173,21 +215,6 @@ class _HomePageState extends State<HomePage> {
     //randomize the position by 500 meters
     pos = randomizePosition(pos, 500);
 
-    classificatoinMap = {
-      'primaryClassification': 'Flagstaff',
-      'allClassificatoins': {
-        'Kana\'a': 0.23,
-        'Black Mesa': 0.01,
-        'Sosi': 0.20,
-        'Dogoszhi': 1.2,
-        'Flagstaff': 0.65,
-        'Tuysayan': 2.3,
-        'Kayenta': 4.5,
-      },
-      'lattitude': pos.latitude,
-      'longitude': pos.longitude,
-    };
-
     setState(() {
       currentPosition = pos;
       classificaitonData =
@@ -195,7 +222,46 @@ class _HomePageState extends State<HomePage> {
     });
 
     // TODO: implement classification model
-    var output = List.filled(labels.length, 0).reshape([1, labels.length]);
+
+    _inputImage = TensorImage(_inputType);
+    _inputImage.loadImage(imageForModel!);
+    _inputImage = _preProcess();
+
+    // Initialize output buffer with correct shape
+    // var output = List.filled(1 * 7, 0).reshape([1, 7]);
+
+    print('\n\n\n Tensor:');
+
+    interpreter.run(_inputImage.buffer, _outputBuffer.getBuffer());
+
+    // Extract the [7] array from [1, 7]
+    // print('Classification Data: ${_outputBuffer.getDoubleList()}');
+
+    Map<String, double> resultMap = {};
+
+    for (int i = 0; i < labels.length; i++) {
+      resultMap[labels[i]] = _outputBuffer.getDoubleList()[i];
+    }
+    String highestConfidenceLabel = '';
+    double highestConfidenceValue = 0.0;
+
+    resultMap.forEach((label, value) {
+      if (value > highestConfidenceValue) {
+        highestConfidenceValue = value;
+        highestConfidenceLabel = label;
+      }
+    });
+
+    setState(() {
+      classificatoinMap = {
+        'primaryClassification': highestConfidenceLabel,
+        'allClassificatoins': resultMap,
+        'lattitude': pos.latitude,
+        'longitude': pos.longitude,
+      };
+    });
+
+    print(resultMap);
   }
 
   Future<Position> _determinePosition() async {
@@ -647,7 +713,7 @@ class _HomePageState extends State<HomePage> {
                             children: [
                               const Text('Primary Classification:'),
                               Text(
-                                "${classificatoinMap!['primaryClassification'].toString()} [${classificatoinMap!['allClassificatoins']?[classificatoinMap!['primaryClassification'].toString()].toString()}]",
+                                "${classificatoinMap!['primaryClassification'].toString()} [${classificatoinMap!['allClassificatoins']?[classificatoinMap!['primaryClassification'].toString()].toStringAsFixed(3)}]",
                                 style: const TextStyle(
                                     fontSize: 20, fontWeight: FontWeight.bold),
                               ),

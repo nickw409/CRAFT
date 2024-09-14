@@ -75,8 +75,8 @@ class SherdDetails extends StatelessWidget {
               ExpansionTile(
                 title: const Text('Model Confidence'),
                 children: [
-                  ...details.entries
-                      .map((entry) => Text('${entry.key}: ${entry.value}')),
+                  ...details.entries.map((entry) =>
+                      Text('${entry.key}: ${entry.value.toStringAsFixed(3)}')),
                   const SizedBox(height: 16),
                 ],
               ),

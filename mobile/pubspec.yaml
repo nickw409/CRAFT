@@ -24,8 +24,9 @@ dependencies:
   page_transition: ^2.1.0
   provider: ^6.1.2
   url_launcher: ^6.3.0
-  image: ^4.2.0
-  tflite_flutter: ^0.11.0
+  image: ^3.3.0
+  tflite_flutter_plus: ^0.0.1
+  tflite_flutter_helper_plus: ^0.0.2
 
 dev_dependencies:
   flutter_test:
