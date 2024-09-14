@@ -145,19 +145,16 @@ class _MyClassificationsState extends State<MyClassifications> {
         child: Scaffold(
           appBar: AppBar(
             centerTitle: false,
-            toolbarHeight: 100,
+            toolbarHeight: 80,
             automaticallyImplyLeading: false,
             title: const Padding(
               padding: EdgeInsets.all(8.0),
-              child: Padding(
-                padding: EdgeInsets.only(top: 32),
-                child: Text(
-                  'History',
-                  style: TextStyle(
-                      fontFamily: 'Uber',
-                      fontSize: 60,
-                      fontWeight: FontWeight.w700),
-                ),
+              child: Text(
+                'History',
+                style: TextStyle(
+                    fontFamily: 'Uber',
+                    fontSize: 60,
+                    fontWeight: FontWeight.w700),
               ),
             ),
             bottom: const TabBar(
