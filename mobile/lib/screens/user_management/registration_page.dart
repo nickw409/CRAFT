@@ -127,6 +127,19 @@ class _RegistrationPageState extends State<RegistrationPage> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
+        appBar: AppBar(
+          toolbarHeight: 80,
+          title: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8.0),
+            child: Text(
+              'Register',
+              style: TextStyle(
+                  fontFamily: 'Uber',
+                  fontSize: 60,
+                  fontWeight: FontWeight.w700),
+            ),
+          ),
+        ),
         body: SafeArea(
             child: Padding(
           padding: const EdgeInsets.all(16),
@@ -135,23 +148,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
               mainAxisAlignment: MainAxisAlignment.start,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(
-                  height: 16,
-                ),
-                const FittedBox(
-                  fit: BoxFit.contain,
-                  child: Text(
-                    'Register',
-                    style: TextStyle(
-                      fontFamily: 'Uber',
-                      fontSize: 60,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-                const SizedBox(
-                  height: 16,
-                ),
                 TextFormField(
                   focusNode: _nameFocusNode,
                   controller: _nameController,

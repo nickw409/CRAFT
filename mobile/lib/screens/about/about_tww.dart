@@ -14,29 +14,35 @@ class AboutTww extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        toolbarHeight: 60,
+        title: const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 8.0),
+          child: Text(
+            'About',
+            style: TextStyle(
+                fontFamily: 'Uber', fontSize: 60, fontWeight: FontWeight.w700),
+          ),
+        ),
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(
-                height: 16,
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 16),
-                child: FittedBox(
-                  fit: BoxFit.contain,
-                  child: Text(
-                    'About TWW',
-                    style: TextStyle(
-                      fontFamily: 'Uber',
-                      fontSize: 60,
-                      fontWeight: FontWeight.w700,
-                    ),
+              const FittedBox(
+                fit: BoxFit.contain,
+                child: Text(
+                  'Tusayan White Ware',
+                  style: TextStyle(
+                    fontFamily: 'Uber',
+                    fontSize: 60,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
+              const SizedBox(height: 8),
               const Text(
                 'Manufactured',
                 style: TextStyle(

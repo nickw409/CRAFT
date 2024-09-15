@@ -118,6 +118,19 @@ class _LoginPageState extends State<LoginPage> {
     return GestureDetector(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
+        appBar: AppBar(
+          toolbarHeight: 80,
+          title: const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 8.0),
+            child: Text(
+              'Login',
+              style: TextStyle(
+                  fontFamily: 'Uber',
+                  fontSize: 60,
+                  fontWeight: FontWeight.w700),
+            ),
+          ),
+        ),
         body: SafeArea(
             child: Padding(
           padding: const EdgeInsets.all(16),
@@ -125,23 +138,6 @@ class _LoginPageState extends State<LoginPage> {
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(
-                height: 16,
-              ),
-              const FittedBox(
-                fit: BoxFit.contain,
-                child: Text(
-                  'Login',
-                  style: TextStyle(
-                    fontFamily: 'Uber',
-                    fontSize: 60,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 16,
-              ),
               TextFormField(
                 focusNode: _emailFocusNode,
                 controller: _emailController,

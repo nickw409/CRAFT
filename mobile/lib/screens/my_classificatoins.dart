@@ -144,9 +144,7 @@ class _MyClassificationsState extends State<MyClassifications> {
       child: SafeArea(
         child: Scaffold(
           appBar: AppBar(
-            centerTitle: false,
             toolbarHeight: 80,
-            automaticallyImplyLeading: false,
             title: const Padding(
               padding: EdgeInsets.all(8.0),
               child: Text(

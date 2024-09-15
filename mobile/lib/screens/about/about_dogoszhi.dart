@@ -30,32 +30,23 @@ class AboutDogoszhi extends StatelessWidget {
     ];
 
     return Scaffold(
+      appBar: AppBar(
+        toolbarHeight: 80,
+        title: const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 8.0),
+          child: Text(
+            'Dogoszhi',
+            style: TextStyle(
+                fontFamily: 'Uber', fontSize: 60, fontWeight: FontWeight.w700),
+          ),
+        ),
+      ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(
-                height: 16,
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(vertical: 16),
-                child: FittedBox(
-                  fit: BoxFit.contain,
-                  child: Text(
-                    "Dogoszhi",
-                    style: TextStyle(
-                      fontFamily: 'Uber',
-                      fontSize: 60,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(
-                height: 16,
-              ),
               CarouselSlider(
                 items: imagePaths.map((imagePath) {
                   return Padding(

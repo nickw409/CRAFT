@@ -344,51 +344,25 @@ class _HomePageState extends State<HomePage> {
     return PopScope(
       canPop: false,
       child: Scaffold(
+        appBar: AppBar(
+          automaticallyImplyLeading: false,
+          toolbarHeight: 80,
+          title: const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Text(
+              'CRAFT',
+              style: TextStyle(
+                  fontFamily: 'Uber',
+                  fontSize: 60,
+                  fontWeight: FontWeight.w700),
+            ),
+          ),
+        ),
         body: Padding(
           padding: const EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(
-                height: 32,
-              ),
-              const FittedBox(
-                fit: BoxFit.contain,
-                child: Text(
-                  'CRAFT',
-                  style: TextStyle(
-                    fontFamily: 'Uber',
-                    fontSize: 60,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-              // Check if user is logged in and display a welcome message
-              // Consumer<LoginProvider>(
-              //   builder: (context, loginProvider, child) {
-              //     if (loginProvider.isLoggedIn) {
-              //       return Text(
-              //         'Welcome, ${loginProvider.firstName}!',
-              //         style: const TextStyle(
-              //           fontFamily: 'Uber',
-              //           fontSize: 24,
-              //           fontWeight: FontWeight.bold,
-              //         ),
-              //       );
-              //     } else {
-              //       return const Text(
-              //         'Welcome, Anonymous!',
-              //         style: TextStyle(
-              //           fontSize: 24,
-              //           fontWeight: FontWeight.bold,
-              //         ),
-              //       );
-              //     }
-              //   },
-              // ),
-              const SizedBox(
-                height: 16,
-              ),
               selectedImage == null
                   ? Column(
                       children: [

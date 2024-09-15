@@ -52,32 +52,44 @@ class SettingsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        // centerTitle: false,
+        toolbarHeight: 80,
+        title: const Padding(
+          padding: EdgeInsets.all(8.0),
+          child: Text(
+            'Account',
+            style: TextStyle(
+                fontFamily: 'Uber', fontSize: 60, fontWeight: FontWeight.w700),
+          ),
+        ),
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Column(
-              children: [
-                SizedBox(
-                  height: 16,
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(vertical: 16),
-                  child: FittedBox(
-                    fit: BoxFit.contain,
-                    child: Text(
-                      'Account',
-                      style: TextStyle(
-                        fontFamily: 'Uber',
-                        fontSize: 60,
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+            // const Column(
+            //   children: [
+            //     SizedBox(
+            //       height: 16,
+            //     ),
+            //     Padding(
+            //       padding: EdgeInsets.symmetric(vertical: 16),
+            //       child: FittedBox(
+            //         fit: BoxFit.contain,
+            //         child: Text(
+            //           'Account',
+            //           style: TextStyle(
+            //             fontFamily: 'Uber',
+            //             fontSize: 60,
+            //             fontWeight: FontWeight.w700,
+            //           ),
+            //         ),
+            //       ),
+            //     ),
+            //   ],
+            // ),
             Center(
               child: Column(
                 children: [
