@@ -298,8 +298,8 @@ class _HomePageState extends State<HomePage> {
       // Save the classification data locally to Hive
       await box.add(classificatoinMap!);
       resetScreen(); // Reset the screen after saving
-    } catch (err) {
-      print('Error saving classification: $err');
+    } catch (e) {
+      _showError('Error saving classification: $e');
     }
   }
 
@@ -321,6 +321,22 @@ class _HomePageState extends State<HomePage> {
     var box = Hive.box('classificationBox');
 
     box.clear();
+  }
+
+  void _showError(String message) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Error'),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: const Text('OK'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -743,15 +759,15 @@ class _HomePageState extends State<HomePage> {
                   : Container(),
 
               // for testing purposes
-              Center(
-                child: FilledButton(
-                    onPressed: () {
-                      var box = Hive.box('classificationBox');
+              // Center(
+              //   child: FilledButton(
+              //       onPressed: () {
+              //         var box = Hive.box('classificationBox');
 
-                      box.clear();
-                    },
-                    child: const Text('Clear Local Storage')),
-              ),
+              //         box.clear();
+              //       },
+              //       child: const Text('Clear Local Storage')),
+              // ),
             ],
           ),
         ),
