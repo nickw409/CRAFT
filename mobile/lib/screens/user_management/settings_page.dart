@@ -1,5 +1,6 @@
 import 'package:craft/global_variables.dart';
 import 'package:craft/provider/login_provider.dart';
+import 'package:craft/provider/theme_provider.dart';
 import 'package:craft/screens/homepage.dart';
 import 'package:craft/screens/user_management/login_page.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -51,6 +52,8 @@ class SettingsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         // centerTitle: false,
@@ -166,6 +169,43 @@ class SettingsPage extends StatelessWidget {
               ),
             ),
             const Spacer(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
+              children: [
+                const Text(
+                  'APP THEME:',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                ),
+                const SizedBox(width: 16),
+                Center(
+                  child: DropdownButton<ThemeMode>(
+                    value: themeProvider.themeMode,
+                    underline: Container(),
+                    items: const [
+                      DropdownMenuItem(
+                        value: ThemeMode.light,
+                        child: Text('Light'),
+                      ),
+                      DropdownMenuItem(
+                        value: ThemeMode.dark,
+                        child: Text('Dark'),
+                      ),
+                      DropdownMenuItem(
+                        value: ThemeMode.system,
+                        child: Text('System'),
+                      ),
+                    ],
+                    onChanged: (ThemeMode? newThemeMode) {
+                      if (newThemeMode != null) {
+                        themeProvider.setTheme(newThemeMode);
+                      }
+                    },
+                  ),
+                ),
+              ],
+            ),
             Center(
               child: Column(
                 children: [

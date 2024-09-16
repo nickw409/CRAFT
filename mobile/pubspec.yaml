@@ -28,6 +28,7 @@ dependencies:
   tflite_flutter_plus: ^0.0.1
   tflite_flutter: ^0.11.0
   tflite_flutter_helper_plus: ^0.0.2
+  shared_preferences: ^2.3.2
 
 dev_dependencies:
   flutter_test:
