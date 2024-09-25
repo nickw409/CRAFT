@@ -77,36 +77,38 @@ def step_decay(epoch):
     return lr
 
 
-def train_model(model, train_dataset, val_dataset):   
-    # Prevent base model from training
-    for layer in baseModel.layers:
-        layer.trainable = False
+def train_model(model, train_dataset, val_dataset, transfer=True):   
+    if transfer:
+        # Prevent base model from training
+        for layer in baseModel.layers:
+            layer.trainable = False
 
-    opt = keras.optimizers.RMSprop(learning_rate=0.005)
+        opt = keras.optimizers.RMSprop(learning_rate=0.005)
 
-    model.compile(loss="categorical_crossentropy", 
-                  optimizer=opt,
-                  metrics=["accuracy"])
+        model.compile(loss="categorical_crossentropy", 
+                    optimizer=opt,
+                    metrics=["accuracy"])
 
-    # Add Learning rate scheduler to model callbacks
-    #callbacks=[keras.callbacks.LearningRateScheduler(step_decay)]
+        # Add Learning rate scheduler to model callbacks
+        #callbacks=[keras.callbacks.LearningRateScheduler(step_decay)]
 
-    print("[INFO] training head...")
-    model.fit(train_dataset.prefetch(tf.data.AUTOTUNE), 
-              batch_size=batch_size,
-              epochs=epochs_head,
-              validation_split=0.1,
-              validation_data=val_dataset.prefetch(tf.data.AUTOTUNE),)
-              #callbacks=callbacks)
+        print("[INFO] training head...")
+        model.fit(train_dataset.prefetch(tf.data.AUTOTUNE), 
+                batch_size=batch_size,
+                epochs=epochs_head,
+                validation_split=0.1,
+                validation_data=val_dataset.prefetch(tf.data.AUTOTUNE),)
+                #callbacks=callbacks)
 
-    # Allow base model to train along with head model for full training
-    for layer in baseModel.layers[0:]:
-        layer.trainable = True
+        # Allow base model to train along with head model for full training
+        for layer in baseModel.layers[0:]:
+            layer.trainable = True
 
-    print("Re-compiling model...")
+        print("Re-compiling model...")
 
     # Have to rebuild optimizer for model recompile
-    opt = keras.optimizers.SGD(learning_rate=0.005)
+    #opt = keras.optimizers.SGD(learning_rate=0.005)
+    opt = keras.optimizers.RMSprop(learning_rate=0.005)
     model.compile(loss="categorical_crossentropy", 
                   optimizer=opt,
                   metrics=["accuracy"])
@@ -132,8 +134,7 @@ def train_model(model, train_dataset, val_dataset):
     print("Fine-Tuning Final Model...")
     hist = model.fit(train_dataset.prefetch(tf.data.AUTOTUNE), 
                         batch_size=batch_size, 
-                        epochs=epochs, 
-                        validation_split=0.1, 
+                        epochs=epochs,  
                         validation_data=val_dataset.prefetch(tf.data.AUTOTUNE),
                         callbacks=callbacks)
 
@@ -146,7 +147,7 @@ num_classes = 7
 image_dimension = 224
 batch_size = 32
 epochs_head = 10
-epochs = 50
+epochs = 60
 l2_constant = 0.02
 
 data_augmentation = keras.Sequential([
@@ -179,7 +180,8 @@ input = keras.Input(shape=(image_dimension, image_dimension, 3))
 # Create base model of ResNet
 baseModel = ResNet152V2(weights="imagenet", include_top=False, 
                         input_tensor=input)
-
+random_base_model = ResNet152V2(weights=None, include_top=True, 
+                        input_tensor=input, classes=num_classes)
 # Create head model from ResNet base model for transfer learning
 headModel = baseModel.output
 headModel = keras.layers.GlobalAveragePooling2D()(headModel)
@@ -190,26 +192,33 @@ headModel = keras.layers.Dense(num_classes, activation="softmax")(headModel)
 
 model = keras.models.Model(inputs=baseModel.input, outputs=headModel)
 
-
 # Testing if ImageDataGenerator against augmentation layers
 #Parameters for ImageDataGenerator
 shift=0.0
 zoom=0.3
 # construct the image generator for data augmentation
 #fill_mode is value put into empty spaces created by rotation or zooming; cval=1.0 means white
-aug = ImageDataGenerator(rotation_range=180,
-	horizontal_flip=False, vertical_flip=False, width_shift_range=shift, 
-    height_shift_range=shift, zoom_range=zoom, fill_mode="constant",cval=1.0)
+#aug = ImageDataGenerator(rotation_range=180,
+#	horizontal_flip=False, vertical_flip=False, width_shift_range=shift, 
+#    height_shift_range=shift, zoom_range=zoom, fill_mode="constant",cval=1.0)
 
-#print(model.summary())
-best_gen_augmented_model = train_model(model, 
-                              train_dataset=aug.flow(train_ds.as_numpy_iterator()), 
-                              val_dataset=test_ds)
-
+#best_gen_augmented_model = train_model(model, 
+#                              train_dataset=aug.flow(train_ds.as_numpy_iterator()), 
+#                              val_dataset=test_ds)
+"""
 hist = train_model(model,
                     train_dataset=train_ds, 
                     val_dataset=test_ds)
 
 print_statistics(model=model,
+                 test_ds=test_ds,
+                 hist=hist)
+"""
+hist = train_model(random_base_model,
+                    train_dataset=train_ds, 
+                    val_dataset=test_ds,
+                    transfer=False)
+
+print_statistics(model=random_base_model,
                  test_ds=test_ds,
                  hist=hist)
