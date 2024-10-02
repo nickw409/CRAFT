@@ -263,4 +263,45 @@ class SwinTransformer(layers.Layer):
                 trainable=False,
             )
     
-    
+    def call(self, x, training=False):
+        height, width = self.num_patch
+        _, num_patches_before, channels = x.shape
+        x_skip = x
+        x = self.norm1(x)
+        x = ops.reshape(x, (-1, height, width, channels))
+        if self.shift_size > 0:
+            shifted_x = ops.roll(
+                x, shift=[-self.shift_size, -self.shift_size], axis=[1,2]
+            )
+        else:
+            shifted_x = x
+        
+        x_windows =  window_partition(shifted_x, self.window_size)
+        x_windows = ops.reshape(
+            x_windows, (-1, self.window_size * self.window_size, channels),
+        )
+        attn_windows = self.attn(x_windows, mask=self.attn_mask)
+
+        attn_windows = ops.reshape(
+            attn_windows,
+            (-1, self.window_size, self.window_size, channels),
+        )
+        shifted_x = window_reverse(
+            attn_windows, self.window_size, height, width, channels
+        )
+        if self.shift_size > 0:
+            x = ops.roll(
+                shifted_x, shift=[self.shift_size, self.shift_size], axis=[1,2]
+            )
+        else:
+            x = shifted_x
+        
+        x = ops.reshape(x, (-1, height * width, channels))
+        x = self.drop_path(x, training=training)
+        x = x_skip + x
+        x_skip = x
+        x = self.norm2(x)
+        x = self.mlp(x)
+        x = self.drop_path(x)
+        x = x_skip + x
+        return x
