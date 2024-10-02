@@ -320,3 +320,14 @@ def patch_extract(images):
     patch_num = patches.shape[1]
     return tf.reshape(patches, (batch_size, patch_num * patch_num, patch_dim))
 
+class PatchEmbedding(layers.Layer):
+    def __init__(self, num_patch, embed_dim, **kwargs):
+        super().__init__(**kwargs)
+        self.num_patch = num_patch
+        self.proj = layers.Dense(embed_dim)
+        self.pos_embed = layers.Embedding(input_dim=num_patch, output_dim=embed_dim)
+    
+    def call(self, patch):
+        pos = ops.arange(start=0, stop=self.num_patch)
+        return self.proj(patch) * self.pos_embed(pos)
+    
