@@ -16,7 +16,7 @@ num_classes = 100
 input_shape = (32, 32, 3)
 
 patch_size = (2, 2)
-dropout_rate = 0.3
+dropout_rate = 0.05
 num_heads = 8
 embed_dim = 64
 num_mlp = 256
