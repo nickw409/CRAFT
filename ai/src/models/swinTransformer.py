@@ -84,3 +84,52 @@ def window_reverse(windows, window_size, height, width, channels):
     x = ops.transpose(x, (0, 1, 3, 2, 4, 5))
     x = ops.reshape(x, (-1, height, width, channels))
     return x
+
+class WindowAttention(layers.Layer):
+    def __init__(
+        self,
+        dim,
+        window_size,
+        num_heads,
+        qkv_bias=True,
+        dropout_rate=0.0,
+        **kwargs,
+    ):
+        super().__init__(**kwargs)
+        self.dim = dim
+        self.window_size = window_size
+        self.num_heads = num_heads
+        self.scale = (dim // num_heads) ** -0.5
+        self.qkv = layers.Dense(dim * 3, use_bias=qkv_bias)
+        self.dropout = layers.Dropout(dropout_rate)
+        self.proj = layers.Dense(dim)
+
+        num_window_elements = (2 * self.window_size[0] - 1) * (
+            2 * self.window_size[1] - 1
+        )
+        self.relative_position_bias_table = self.add_weight(
+            shape=(num_window_elements, self.num_heads),
+            initializer=keras.initializers.Zeros(),
+            trainable=True,
+        )
+        coords_h = np.arange(self.window_size[0])
+        coords_w = np.arange(self.window_size[1])
+        coords_matrix = np.meshgrid(coords_h, coords_w, indexing="ij")
+        coords = np.stack(coords_matrix)
+        coords_flatten = coords.reshape(2, -1)
+        relative_coords = coords_flatten[:, :, None] - coords_flatten[:, None, :]
+        relative_coords = relative_coords.transpose([1, 2, 0])
+        relative_coords[:, :, 0] += self.window_size[0] - 1
+        relative_coords[:, :, 1] += self.window_size[1] - 1
+        relative_coords[:, :, 0] *= 2 * self.window_size[1] - 1
+        relative_position_index = relative_coords.sum(-1)
+
+        self.relative_position_index = keras.Variable(
+            initializer=relative_position_index,
+            shape=relative_position_index.shape,
+            dtype="int",
+            trainable=False,
+        )
+
+    def call(self, x, mask=None):
+        
