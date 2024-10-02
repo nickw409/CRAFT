@@ -20,7 +20,7 @@ def uploadImage( image, data_dict ):
     blob.upload_from_filename( image )
 
     # upload associated metadata
-    data_dict['imageURL'] = random_name
+    data_dict['imageUrl'] = blob.public_url
     database.collection("classifications").document( random_name ).set( data_dict )
 
 # function test
