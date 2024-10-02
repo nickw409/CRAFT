@@ -132,4 +132,46 @@ class WindowAttention(layers.Layer):
         )
 
     def call(self, x, mask=None):
-        
+        _, size, channels = x.shape
+        head_dim = channels // self.num_heads
+        x_qkv = self.qkv(x)
+        x_qkv = ops.reshape(x_qkv, (-1, size, 3, self.num_heads, head_dim))
+        x_qkv = ops.transpose(x_qkv, (2, 0, 3, 1, 4))
+        q, k, v = x_qkv[0], x_qkv[1], x_qkv[2]
+        q = q * self.scale
+        k = ops.transpose(k, (0, 1, 3, 2))
+        attn = q @ k
+
+        num_window_elements = self.window_size[0] * self.window_size[1]
+        relative_position_index_flat = ops.reshape(self.relative_position_index, (-1,))
+        relative_position_bias = ops.take(
+            self.relative_position_bias_table,
+            relative_position_index_flat,
+            axis=0,
+        )
+        relative_position_bias = ops.reshape(
+            relative_position_bias,
+            (num_window_elements, num_window_elements, -1),
+        )
+        relative_position_bias = ops.transpose(relative_position_bias, (2, 0, 1))
+        attn = attn + ops.expand_dims(relative_position_bias, axis=0)
+
+        if mask is not None:
+            nW = mask.shape[0]
+            mask_float = ops.cast(
+                ops.expand_dims(ops.expand_dims(mask, axis=1), axis=0),
+                "float32",
+            )
+            attn = ops.reshape(attn, (-1, nW, self.num_heads, size, size)) + mask_float
+            attn = ops.reshape(attn (-1, self.num_heads, size, size))
+            attn = keras.activations.softmax(attn, axis=-1)
+        else:
+            attn = keras.activations.softmax(attn, axis=-1)
+        attn = self.dropout(attn)
+
+        x_qkv = attn @ v
+        x_qkv = ops.transpose(x_qkv, (0, 2, 1, 3))
+        x_qkv = ops.reshape(x_qkv, (-1, size, channels))
+        x_qkv = self.proj(x_qkv)
+        x_qkv = self.dropout(x_qkv)
+        return x_qkv
