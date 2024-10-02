@@ -16,7 +16,7 @@ num_classes = 100
 input_shape = (32, 32, 3)
 
 patch_size = (2, 2)
-dropout_rate = 0.03
+dropout_rate = 0.3
 num_heads = 8
 embed_dim = 64
 num_mlp = 256
@@ -30,9 +30,9 @@ num_patch_y = input_shape[1] // patch_size[1]
 
 learning_rate = 1e-3
 batch_size = 128
-num_epochs = 40
+num_epochs = 150
 validation_split = 0.1
-weight_decay = 0.0001
+weight_decay = 0.005
 label_smoothing = 0.1
 
 # Example uses CIFAR-100 and one-hot encoding
@@ -163,7 +163,7 @@ class WindowAttention(layers.Layer):
                 "float32",
             )
             attn = ops.reshape(attn, (-1, nW, self.num_heads, size, size)) + mask_float
-            attn = ops.reshape(attn (-1, self.num_heads, size, size))
+            attn = ops.reshape(attn, (-1, self.num_heads, size, size))
             attn = keras.activations.softmax(attn, axis=-1)
         else:
             attn = keras.activations.softmax(attn, axis=-1)
@@ -353,7 +353,7 @@ class PatchMerging(layers.Layer):
 
 
 def augment(x):
-    x = tf.image.random_crop(x, size=(image_dim, image_dim))
+    x = tf.image.random_crop(x, size=(image_dim, image_dim, 3))
     x = tf.image.random_flip_left_right(x)
     return x
 
@@ -409,7 +409,7 @@ output = layers.Dense(num_classes, activation="softmax")(x)
 model = keras.Model(input, output)
 model.compile(
     loss=keras.losses.CategoricalCrossentropy(label_smoothing=label_smoothing),
-    optimizer=keras.optimizer.AdamW(
+    optimizer=keras.optimizers.AdamW(
         learning_rate=learning_rate,
         weight_decay=weight_decay,
     ),
