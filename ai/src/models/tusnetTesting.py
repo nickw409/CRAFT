@@ -17,39 +17,6 @@ except Exception as e:
   print(e)
 
 
-image_dim = 32
-num_classes = 10
-batch_size = 128
-epochs = 50
-
-data_augmentation = keras.Sequential([
-    keras.layers.RandomRotation(factor=0.5, 
-                                fill_mode="constant", 
-                                fill_value=1.0),
-    keras.layers.RandomZoom(height_factor=(-0.2, 0.2), 
-                            width_factor=(-0.2, 0.2),
-                            fill_mode="constant", 
-                            fill_value=1.0),
-])
-
-(x_train, y_train), (x_test, y_test) = keras.datasets.cifar10.load_data()
-train_dataset = tf.data.Dataset.from_tensor_slices((x_train, y_train))
-test_dataset = tf.data.Dataset.from_tensor_slices((x_test, y_test))
-
-train_dataset = train_dataset.map(lambda x, y: (data_augmentation(x), y),
-                                  num_parallel_calls=tf.data.AUTOTUNE)
-
-model = TusNetModel(image_dim=image_dim,
-                    batch_size=batch_size,
-                    num_classes=num_classes,
-                    epochs=epochs)
-model.model.summary()
-model.train(train_dataset=train_dataset.batch(batch_size=batch_size),
-            val_dataset=test_dataset.batch(batch_size=batch_size))
-model.load_model()
-model.evaluate(test_dataset=test_dataset)
-
-"""
 image_dim = 224
 num_classes = 7
 batch_size = 32
@@ -98,4 +65,3 @@ step_decay_model.train(train_dataset=train_dataset,
 
 step_decay_model.load_model()
 step_decay_model.evaluate(test_dataset=test_dataset)
-"""

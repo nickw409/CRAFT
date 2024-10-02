@@ -47,7 +47,7 @@ class TusNetModel:
         x = self.residual_block(x, filters=512, pooling=False)
 
         x = layers.GlobalAveragePooling2D()(x)
-        x = layers.Dropout(0.5)(x)
+        #x = layers.Dropout(0.5)(x)
         outputs = layers.Dense(self.num_classes, activation="softmax")(x)
         model = keras.models.Model(inputs=inputs, outputs=outputs)
         return model
@@ -78,7 +78,7 @@ class TusNetModel:
     
     def train(self, train_dataset, val_dataset):
         self.model.compile(optimizer="rmsprop",
-                           loss="sparse_categorical_crossentropy",
+                           loss="categorical_crossentropy",
                            metrics=["accuracy"])
         callbacks = [
             keras.callbacks.ModelCheckpoint(filepath=self.model_path,
