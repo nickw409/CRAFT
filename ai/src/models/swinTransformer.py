@@ -305,3 +305,18 @@ class SwinTransformer(layers.Layer):
         x = self.drop_path(x)
         x = x_skip + x
         return x
+
+
+def patch_extract(images):
+    batch_size = tf.shape(images)[0]
+    patches = tf.image.extract_patches(
+        images=images,
+        sizes=(1, patch_size[0], patch_size[1], 1),
+        strides=(1, patch_size[0], patch_size[1], 1),
+        rates=(1, 1, 1, 1),
+        padding="VALID",
+    )
+    patch_dim = patches.shape[-1]
+    patch_num = patches.shape[1]
+    return tf.reshape(patches, (batch_size, patch_num * patch_num, patch_dim))
+
