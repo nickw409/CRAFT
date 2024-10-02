@@ -331,3 +331,53 @@ class PatchEmbedding(layers.Layer):
         pos = ops.arange(start=0, stop=self.num_patch)
         return self.proj(patch) * self.pos_embed(pos)
     
+
+class PatchMerging(layers.Layer):
+    def __init__(self, num_patch, embed_dim, **kwargs):
+        super().__init__(**kwargs)
+        self.num_patch = num_patch
+        self.embed_dim = embed_dim
+        self.linear_trans = layers.Dense(2 * embed_dim, use_bias=False)
+    
+    def call(self, x):
+        height, width = self.num_patch
+        _, _, C = x.shape
+        x = ops.reshape(x, (-1, height, width, C))
+        x0 = x[:, 0::2, 0::2, :]
+        x1 = x[:, 1::2, 0::2, :]
+        x2 = x[:, 0::2, 1::2, :]
+        x3 = x[:, 1::2, 1::2, :]
+        x = ops.concatenate((x0, x1, x2, x3), axis=-1)
+        x = ops.reshape(x, (-1, (height // 2) * (width // 2), 4 * C))
+        return self.linear_trans(x)
+
+
+def augment(x):
+    x = tf.image.random_crop(x, size=(image_dim, image_dim))
+    x = tf.image.random_flip_left_right(x)
+    return x
+
+train_dataset = (
+    tf.data.Dataset.from_tensor_slices((x_train, y_train))
+    .map(lambda x, y: (augment(x), y))
+    .batch(batch_size=batch_size)
+    .map(lambda x, y: (patch_extract(x), y))
+    .prefetch(tf.data.experimental.AUTOTUNE)
+)
+
+val_dataset = (
+    tf.data.Dataset.from_tensor_slices((x_val, y_val))
+    .batch(batch_size=batch_size)
+    .map(lambda x, y: (patch_extract(x), y))
+    .prefetch(tf.data.experimental.AUTOTUNE)
+)
+
+test_dataset = (
+    tf.data.Dataset.from_tensor_slices((x_test, y_test))
+    .batch(batch_size=batch_size)
+    .map(lambda x, y: (patch_extract(x), y))
+    .prefetch(tf.data.experimental.AUTOTUNE)
+)
+
+# Building the model here
+input = layers.Input(shape=(256, 12))
