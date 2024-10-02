@@ -4,6 +4,7 @@ __pycache__
 
 # Too big to fit on Github
 image_data/
+*.tflite
 
 # Not needed for development
 Testing/
@@ -13,3 +14,6 @@ logs/
 # Junk
 .DS_Store
 .vscode
+
+# Flutter specific
+ephemeral/
