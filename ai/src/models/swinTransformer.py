@@ -405,3 +405,37 @@ x = SwinTransformer(
 x = PatchMerging((num_patch_x, num_patch_y), embed_dim=embed_dim)(x)
 x = layers.GlobalAveragePooling1D()(x)
 output = layers.Dense(num_classes, activation="softmax")(x)
+
+model = keras.Model(input, output)
+model.compile(
+    loss=keras.losses.CategoricalCrossentropy(label_smoothing=label_smoothing),
+    optimizer=keras.optimizer.AdamW(
+        learning_rate=learning_rate,
+        weight_decay=weight_decay,
+    ),
+    metrics=[
+        keras.metrics.CategoricalAccuracy(name="accuracy"),
+        keras.metrics.TopKCategoricalAccuracy(5, name="top-5-accuracy"),
+    ],
+)
+history = model.fit(
+    train_dataset,
+    batch_size=batch_size,
+    epochs=num_epochs,
+    validation_data=val_dataset,
+)
+
+# Plotting results
+plt.plot(history.history["loss"], label="train_loss")
+plt.plot(history.history["val_loss"], label="val_loss")
+plt.xlabel("Epochs")
+plt.ylabel("Loss")
+plt.title("Train and Validation Losses Over Epochs", fontsize=14)
+plt.legend()
+plt.grid()
+plt.show()
+
+loss, accuracy, top_5_accuracy = model.evaluate(test_dataset)
+print(f"Test loss: {round(loss, 2)}")
+print(f"Test accuracy: {round(accuracy * 100, 2)}%")
+print(f"Test top 5 accuracy: {round(top_5_accuracy * 100, 2)}%")
