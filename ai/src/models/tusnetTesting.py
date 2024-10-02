@@ -52,16 +52,3 @@ model.train(train_dataset=train_dataset,
 
 model.load_model()
 model.evaluate(test_dataset=test_dataset)
-
-
-step_decay_model = TusNetModel(image_dim=image_dim,
-                    batch_size=batch_size,
-                    num_classes=num_classes,
-                    epochs=epochs,
-                    l2_constant=l2_constant,
-                    use_step_decay=True)
-step_decay_model.train(train_dataset=train_dataset,
-            val_dataset=test_dataset)
-
-step_decay_model.load_model()
-step_decay_model.evaluate(test_dataset=test_dataset)
