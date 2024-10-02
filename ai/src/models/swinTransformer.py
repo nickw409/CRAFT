@@ -220,6 +220,47 @@ class SwinTransformer(layers.Layer):
             ]
         )
 
-        if min(self.num_patch) < self.window_sizeL
-        self.shift_size = 0
-        self.window_size = min(self.num_patch)
+        if min(self.num_patch) < self.window_size:
+            self.shift_size = 0
+            self.window_size = min(self.num_patch)
+
+    def build(self, input_shape):
+        if self.shift_size == 0:
+            self.attn_mask = None
+        else:
+            height, width = self.num_patch
+            h_slices = (
+                slice(0, -self.window_size),
+                slice(-self.window_size, -self.shift_size),
+                slice(-self.shift_size, None),
+            )
+            w_slices = (
+                slice(0, -self.window_size),
+                slice(-self.window_size, -self.shift_size),
+                slice(-self.shift_size, None),
+            )
+            mask_array = np.zeros((1, height, width, 1))
+            count = 0
+            for h in h_slices:
+                for w in w_slices:
+                    mask_array[:, h, w, :] = count
+                    count += 1
+            mask_array = ops.convert_to_tensor(mask_array)
+
+            mask_windows = window_partition(mask_array, self.window_size)
+            mask_windows = ops.reshape(
+                mask_windows, [-1, self.window_size * self.window_size]
+            )
+            attn_mask = ops.expand_dims(mask_windows, axis=1) - ops.expand_dims(
+                mask_windows, axis=2
+            )
+            attn_mask = ops.where(attn_mask != 0, -100.0, attn_mask)
+            attn_mask = ops.where(attn_mask == 0, 0.0, attn_mask)
+            self.attn_mask = keras.Variable(
+                initializer=attn_mask,
+                shape=attn_mask.shape,
+                dtype=attn_mask.dtype,
+                trainable=False,
+            )
+    
+    
