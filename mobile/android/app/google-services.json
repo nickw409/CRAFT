@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "906930916105",
+    "project_id": "craft-40cda",
+    "storage_bucket": "craft-40cda.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:906930916105:android:1f71a95b40a0428989e1d8",
+        "android_client_info": {
+          "package_name": "com.craft.craft"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAv9i9m95XjsXAZPWYPZMJTlx_0u9GEHIA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
