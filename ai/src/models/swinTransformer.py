@@ -175,3 +175,51 @@ class WindowAttention(layers.Layer):
         x_qkv = self.proj(x_qkv)
         x_qkv = self.dropout(x_qkv)
         return x_qkv
+
+
+class SwinTransformer(layers.Layer):
+    def __init__(
+            self,
+            dim,
+            num_patch,
+            num_heads,
+            window_size=7,
+            shift_size=0,
+            num_mlp=1024,
+            qkv_bias=True,
+            dropout_rate=0.0,
+            **kwargs,
+    ):
+        super().__init__(**kwargs)
+
+        self.dim = dim
+        self.num_patch = num_patch
+        self.num_heads = num_heads
+        self.window_size = window_size
+        self.shift_size = shift_size
+        self.num_mlp = num_mlp
+
+        self.norm1 = layers.LayerNormalization(epsilon=1e-5)
+        self.attn = WindowAttention(
+            dim,
+            window_size=(self.window_size, self.window_size),
+            num_heads=num_heads,
+            qkv_bias=qkv_bias,
+            dropout_rate=dropout_rate,
+        )
+        self.drop_path = layers.Dropout(dropout_rate)
+        self.norm2 = layers.LayerNormalization(epsilon=1e-5)
+
+        self.mlp = keras.Sequential(
+            [
+                layers.Dense(num_mlp),
+                layers.Activation(keras.activations.gelu),
+                layers.Dropout(dropout_rate),
+                layers.Dense(dim),
+                layers.Dropout(dropout_rate),
+            ]
+        )
+
+        if min(self.num_patch) < self.window_sizeL
+        self.shift_size = 0
+        self.window_size = min(self.num_patch)
