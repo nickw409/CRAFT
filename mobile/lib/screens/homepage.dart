@@ -150,6 +150,8 @@ class _HomePageState extends State<HomePage> {
 
     imageForModel = image;
 
+    classifyImage();
+
     // imageForModel = grayscaleImage;
 
     // Encode the grayscale image back to PNG format
@@ -225,7 +227,11 @@ class _HomePageState extends State<HomePage> {
     Map<String, double> resultMap = {};
 
     for (int i = 0; i < labels.length; i++) {
-      resultMap[labels[i]] = _outputBuffer.getDoubleList()[i];
+      // resultMap[labels[i]] = _outputBuffer.getDoubleList()[i];
+      double confidence = _outputBuffer.getDoubleList()[i];
+      if (confidence > 0.1) {
+        resultMap[labels[i]] = confidence;
+      }
     }
     String highestConfidenceLabel = '';
     double highestConfidenceValue = 0.0;
@@ -687,14 +693,24 @@ class _HomePageState extends State<HomePage> {
                           padding: const EdgeInsets.all(12.0),
                           child: Column(
                             children: [
-                              const Text('Primary Classification:'),
+                              // const Text('Primary Classification:',
+                              //     style:
+                              //         TextStyle(fontWeight: FontWeight.bold)),
                               Text(
-                                "${classificatoinMap!['primaryClassification'].toString()} [${classificatoinMap!['allClassificatoins']?[classificatoinMap!['primaryClassification'].toString()].toStringAsFixed(3)}]",
+                                "${classificatoinMap!['primaryClassification'].toString()} [${classificatoinMap!['allClassificatoins']?[classificatoinMap!['primaryClassification'].toStringAsFixed(3)] ?? ""}]",
                                 style: const TextStyle(
                                     fontSize: 20, fontWeight: FontWeight.bold),
                               ),
-                              Text(
-                                  "Location: ${classificatoinMap!['lattitude'].toStringAsFixed(4)}, ${classificatoinMap!['longitude'].toStringAsFixed(4)}"),
+                              const Text(
+                                'All classifications and confidence:',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              ...classificatoinMap!['allClassificatoins']
+                                  .entries
+                                  .map((entry) => Text(
+                                      '${entry.key}: ${entry.value.toStringAsFixed(3)}')),
+                              // Text(
+                              //     "Location: ${classificatoinMap!['lattitude'].toStringAsFixed(4)}, ${classificatoinMap!['longitude'].toStringAsFixed(4)}"),
                               // const Text("Other Classifications:"),
                             ],
                           )),
