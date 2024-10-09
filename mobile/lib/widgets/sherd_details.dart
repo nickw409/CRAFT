@@ -107,13 +107,16 @@ class SherdDetails extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 16),
-              Center(
-                child: FilledButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Dismiss'),
-                ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  FilledButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Dismiss'),
+                  ),
+                ],
               ),
             ],
           ),
