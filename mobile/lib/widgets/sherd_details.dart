@@ -69,8 +69,16 @@ class SherdDetails extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(5),
                 child: (!fromHive)
-                    ? Image.network(imageUrl)
-                    : Image.file(File(imageUrl)),
+                    ? Image.network(
+                        imageUrl,
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      )
+                    : Image.file(
+                        File(imageUrl),
+                        width: double.infinity,
+                        fit: BoxFit.cover,
+                      ),
               ),
               ExpansionTile(
                 title: const Text('Model Confidence'),

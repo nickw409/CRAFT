@@ -129,6 +129,10 @@ class _HomePageState extends State<HomePage> {
       return;
     }
 
+    setState(() {
+      selectedImage = File(croppedFile.path);
+    });
+
     //convert croppedFile to grayscale
     // Read the image file
     final File imageFile = File(croppedFile.path);
@@ -142,19 +146,22 @@ class _HomePageState extends State<HomePage> {
     }
 
     // Convert the image to grayscale
-    img.Image grayscaleImage = img.grayscale(image);
-    imageForModel = grayscaleImage;
+    // img.Image grayscaleImage = img.grayscale(image);
+
+    imageForModel = image;
+
+    // imageForModel = grayscaleImage;
 
     // Encode the grayscale image back to PNG format
-    final List<int> grayscaleBytes = img.encodePng(grayscaleImage);
+    // final List<int> grayscaleBytes = img.encodePng(grayscaleImage);
 
-    // Save the grayscale image as a new file
-    final File grayscaleFile =
-        await File(croppedFile.path).writeAsBytes(grayscaleBytes);
+    // // Save the grayscale image as a new file
+    // final File grayscaleFile =
+    //     await File(croppedFile.path).writeAsBytes(grayscaleBytes);
 
-    setState(() {
-      selectedImage = grayscaleFile;
-    });
+    // setState(() {
+    //   selectedImage = grayscaleFile;
+    // });
   }
 
   void resetScreen() {
@@ -535,7 +542,7 @@ class _HomePageState extends State<HomePage> {
                                         FittedBox(
                                           fit: BoxFit.contain,
                                           child: Text(
-                                            'ABOUT\nTUYSAYAN\nWHITE\nWARE',
+                                            'ABOUT\nTUSAYAN\nWHITE\nWARE',
                                             style: TextStyle(
                                               fontSize: 20,
                                               fontFamily: 'Uber',
