@@ -697,12 +697,12 @@ class _HomePageState extends State<HomePage> {
                               //     style:
                               //         TextStyle(fontWeight: FontWeight.bold)),
                               Text(
-                                "${classificatoinMap!['primaryClassification'].toString()} [${classificatoinMap!['allClassificatoins']?[classificatoinMap!['primaryClassification'].toStringAsFixed(3)] ?? ""}]",
+                                "${classificatoinMap!['primaryClassification'].toString()} [${classificatoinMap!['allClassificatoins']?[classificatoinMap!['primaryClassification']]?.toStringAsFixed(3) ?? "0.0"}]",
                                 style: const TextStyle(
                                     fontSize: 20, fontWeight: FontWeight.bold),
                               ),
                               const Text(
-                                'All classifications and confidence:',
+                                'Model Prediction:',
                                 style: TextStyle(fontWeight: FontWeight.bold),
                               ),
                               ...classificatoinMap!['allClassificatoins']
