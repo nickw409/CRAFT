@@ -10,8 +10,8 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle('Conveyor System')
-        self.setFixedSize(900, 400)
+        self.setWindowTitle('Sherd Conveyor System')
+        self.setFixedSize(900, 500)
         layout = QVBoxLayout()
         self.pages = QStackedLayout()
 
@@ -26,6 +26,8 @@ class MainWindow(QMainWindow):
         self.pages.addWidget(ImageProcess())
         self.pages.addWidget(register)
 
+        # REMOVE THIS TO ENABLE LOGIN AND REGISTER
+        self.pages.setCurrentIndex(1)
 
         # craft banner
         title_label = QLabel("CRAFT")
