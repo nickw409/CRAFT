@@ -720,10 +720,13 @@ class _HomePageState extends State<HomePage> {
                 height: 16,
               ),
               selectedImage != null && classificaitonData == null
-                  ? Center(
-                      child: FilledButton(
-                          onPressed: classifyImage,
-                          child: const Text('Classify')),
+                  // ? Center(
+                  //     child: FilledButton(
+                  //         onPressed: classifyImage,
+                  //         child: const Text('Classify')),
+                  //   )
+                  ? const Center(
+                      child: CircularProgressIndicator(),
                     )
                   : Container(),
               selectedImage != null && classificaitonData == null

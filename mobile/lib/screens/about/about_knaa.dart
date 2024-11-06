@@ -31,7 +31,7 @@ class AboutKnaa extends StatelessWidget {
         title: const Padding(
           padding: EdgeInsets.symmetric(horizontal: 8.0),
           child: Text(
-            "Kna'a",
+            "Kana'a",
             style: TextStyle(
                 fontFamily: 'Uber', fontSize: 60, fontWeight: FontWeight.w700),
           ),
