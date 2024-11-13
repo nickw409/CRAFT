@@ -5,26 +5,34 @@ from PySide6.QtCore import Qt
 from login import Login
 from register import Register
 from image_process import ImageProcess
+from settings import Settings
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        # window setup
         self.setWindowTitle('Sherd Conveyor System')
         self.setFixedSize(900, 500)
         layout = QVBoxLayout()
         self.pages = QStackedLayout()
 
+        # connect pages
         login = Login()
         login.login_success_signal.connect(self.show_process_page)
         login.go_to_register.connect(self.show_register_page)
+        image_process = ImageProcess()
+        image_process.go_to_settings.connect(self.show_settings_page)
         register = Register()
-        register.register_success_signal.connect(self.show_login_page)       
+        register.register_success_signal.connect(self.show_login_page)     
+        settings = Settings()  
+        settings.save_settings_signal.connect(self.show_process_page)
 
         # add pages
         self.pages.addWidget(login)
-        self.pages.addWidget(ImageProcess())
+        self.pages.addWidget(image_process)
         self.pages.addWidget(register)
+        self.pages.addWidget(settings)
 
         # REMOVE THIS TO ENABLE LOGIN AND REGISTER
         self.pages.setCurrentIndex(1)
@@ -32,7 +40,7 @@ class MainWindow(QMainWindow):
         # craft banner
         title_label = QLabel("CRAFT")
         title_label.setAlignment(Qt.AlignCenter)
-        title_label.setStyleSheet("font: 40px; font-weight: bold; color: dark brown; border: 10px solid dark brown")  
+        title_label.setStyleSheet("font: 40px; font-weight: bold; color: dark brown")  
         layout.addWidget(title_label) 
 
         # setting the layout
@@ -52,6 +60,9 @@ class MainWindow(QMainWindow):
 
     def show_register_page(self):
         self.pages.setCurrentIndex(2)
+
+    def show_settings_page(self):
+        self.pages.setCurrentIndex(3)
         
 
 app = QApplication(sys.argv)

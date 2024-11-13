@@ -39,7 +39,7 @@ class Login(QWidget):
         grid.setRowStretch(0, 1)
         grid.setRowStretch(5, 1)
         
-        # setting the layout)
+        # set the layout
         self.setLayout(grid)
 
     def handle_login(self):

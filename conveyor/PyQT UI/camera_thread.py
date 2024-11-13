@@ -5,6 +5,7 @@ import imutils
 import time
 from image_utils import MovingAverageQ
 from backgroundRemover import removeBackground
+from settings import chosen_settings
 
 class CameraThread(QThread):
     video_view_signal = Signal(numpy.ndarray)
@@ -31,13 +32,12 @@ class CameraThread(QThread):
             if ret:
                 self.process_image(frame)
         capture.release()
-        
 
     # process the image
     def process_image(self, frame):
         original_frame = frame.copy()
 
-        #blurs the image and grabs image contours
+        # blurs the image and grabs image contours
         gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         blurred_frame = cv2.blur(gray_frame, (5, 5))
         edged_frame = cv2.Canny(blurred_frame, 80, 110) 
@@ -76,14 +76,14 @@ class CameraThread(QThread):
             # draw circle at center of object
             cv2.circle(frame, (self.xQ.add(x), self.yQ.add(y)), 20, (255, 255, 255), -1)
             
-            # save pic if center of object is just past the center of the frame
+            # save picture if center of object is just past the center of the frame
             if (not self.image_saved and self.xQ.get() > self.frameWidth/2):
 
                 # determine file name
                 screenshot_filename = 'sherd_' + str(time.process_time_ns()) + '.png'
-
                 background_removed_frame = removeBackground(original_frame)
-                # crop and save the image
+
+                # crop image for UI display
                 sherd = max(contours, key=cv2.contourArea)
                 height, width, _ = original_frame.shape
                 x, y, w, h = cv2.boundingRect(sherd)

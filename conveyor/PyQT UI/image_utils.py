@@ -1,3 +1,7 @@
+import cv2
+import os
+from settings import chosen_settings
+
 # queue for data
 class Node:
     def __init__(self, data):
