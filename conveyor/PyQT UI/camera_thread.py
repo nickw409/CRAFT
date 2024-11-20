@@ -1,11 +1,21 @@
 import cv2
 from PySide6.QtCore import QThread, Signal
-import numpy
+import numpy as np
 import imutils
 import time
 from image_utils import MovingAverageQ
-from backgroundRemover import removeBackground
 from settings import chosen_settings
+import numpy
+import os
+
+def is_centered(x, y, w, h, center_x, center_y):
+    """ Check if the object is near the center of the screen """
+    obj_center_x = x + w // 2
+    obj_center_y = y + h // 2
+    # Define a region around the center for detection
+    tolerance = 50
+    return (center_x - tolerance < obj_center_x < center_x + tolerance) and \
+           (center_y - tolerance < obj_center_y < center_y + tolerance)
 
 class CameraThread(QThread):
     video_view_signal = Signal(numpy.ndarray)
@@ -17,7 +27,6 @@ class CameraThread(QThread):
         self.image_saved = False
 
     def start_thread(self):
-        # start the thread
         self.stop = False
         self.xQ = MovingAverageQ(3)
         self.yQ = MovingAverageQ(3)
@@ -25,103 +34,127 @@ class CameraThread(QThread):
 
     def run(self):
         # run the thread
-        capture = cv2.VideoCapture(1)
-        self.frameWidth = capture.get(cv2.CAP_PROP_FRAME_WIDTH)
+        cap = cv2.VideoCapture(1)
+        self.frameWidth = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
+
+        ret, background = cap.read()
+
+        original_frame = background.copy()
+
+        # Convert the background to grayscale
+        background_gray = cv2.cvtColor(background, cv2.COLOR_BGR2GRAY)
+
+        # Apply Gaussian blur to the background to reduce noise
+        background_blur = cv2.GaussianBlur(background_gray, (21, 21), 0)
+
+        # Screen center coordinates
+        height, width = background.shape[:2]
+        center_x, center_y = width // 2, height // 2
+
+        # Flag to prevent multiple screenshots and a counter for image naming
+        screenshot_taken = False
+        image_counter = 0
+        
         while not self.stop:
-            ret, frame = capture.read()
-            if ret:
-                self.process_image(frame)
-        capture.release()
-
-    # process the image
-    def process_image(self, frame):
-        original_frame = frame.copy()
-
-        # blurs the image and grabs image contours
-        gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        blurred_frame = cv2.blur(gray_frame, (5, 5))
-        edged_frame = cv2.Canny(blurred_frame, 80, 110) 
-        contours = cv2.findContours(edged_frame, cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-        contours = imutils.grab_contours(contours)
-
-        cv2.drawContours(frame, contours, -1, (0, 255, 0), 3) 
-
-        if len(contours) != 0:
-            # calculate center of object
-            x = 0
-            y = 0
-            validCountour = 0
-            for contour in contours:
-
-                # find the center of each contour
-                center = cv2.moments(contour)
-
-                # add center of each center of contour
-                if (center["m00"] != 0):
-                    centerX = int(center["m10"] / center["m00"])
-                    centerY = int(center["m01"] / center["m00"])  
-                    if (centerX < 0 or centerY < 0):  
-                        continue
-                    x += centerX
-                    y += centerY
-                    validCountour += 1
-                    
-            # calculate average of centers of contours
-            if (validCountour == 0):
-                return
-
-            x = x // validCountour
-            y = y // validCountour
-
-            # draw circle at center of object
-            cv2.circle(frame, (self.xQ.add(x), self.yQ.add(y)), 20, (255, 255, 255), -1)
+            ret, frame = cap.read()
+            if not ret:
+                break
             
-            # save picture if center of object is just past the center of the frame
-            if (not self.image_saved and self.xQ.get() > self.frameWidth/2):
+            # Convert the current frame to grayscale
+            gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            
+            # Apply Gaussian blur to the frame to reduce noise
+            gray_blur = cv2.GaussianBlur(gray, (21, 21), 0)
+            
+            # Compute the absolute difference between the background and the current frame
+            diff = cv2.absdiff(background_blur, gray_blur)
+            
+            # Apply a threshold to get the foreground mask
+            _, mask = cv2.threshold(diff, 25, 255, cv2.THRESH_BINARY)
+            
+            # Invert the mask to get the background mask
+            mask_inv = cv2.bitwise_not(mask)
+            
+            # Create a white background of the same size as the frame
+            white_background = np.full_like(frame, 255)
+            
+            # Use the mask to extract the moving object from the current frame
+            foreground = cv2.bitwise_and(frame, frame, mask=mask)
+            
+            # Use the inverse mask to extract the background from the white background
+            white_bg = cv2.bitwise_and(white_background, white_background, mask=mask_inv)
+            
+            # Combine the foreground (moving object) with the white background
+            result = cv2.add(foreground, white_bg)
+            
+            # Find contours to detect the moving object
+            contours, _ = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+            
+            # Flag to check if any object is currently centered
+            object_centered = False
 
-                # determine file name
-                screenshot_filename = 'sherd_' + str(time.process_time_ns()) + '.png'
-                background_removed_frame = removeBackground(original_frame)
+            # Iterate over the contours to draw bounding boxes
+            for contour in contours:
+                if cv2.contourArea(contour) > 500:  # Filter small objects
+                    x, y, w, h = cv2.boundingRect(contour)
+                    # Draw a bounding box around the object
+                    cv2.rectangle(result, (x, y), (x + w, y + h), (0, 255, 0), 2)
+                    
+                    # Check if the object is passing through the center
+                    if is_centered(x, y, w, h, center_x, center_y):
+                        object_centered = True
+                        if not screenshot_taken:
+                            screenshot_taken = True
 
-                # crop image for UI display
-                sherd = max(contours, key=cv2.contourArea)
-                height, width, _ = original_frame.shape
-                x, y, w, h = cv2.boundingRect(sherd)
-                x, y, w, h = self.get_crop_area(x, y, w, h, width, height )
+                            # Get the center of the bounding box
+                            obj_center_x = x + w // 2
+                            obj_center_y = y + h // 2
+                            
+                            # Calculate the crop area for 400x400 image centered on the bounding box center
+                            crop_x = max(0, obj_center_x - 200)
+                            crop_y = max(0, obj_center_y - 200)
+                            crop_x2 = min(width, crop_x + 400)
+                            crop_y2 = min(height, crop_y + 400)
+                            
+                            # Ensure the crop is exactly 400x400
+                            if (crop_x2 - crop_x) < 400:
+                                crop_x = max(0, crop_x2 - 400)
+                            if (crop_y2 - crop_y) < 400:
+                                crop_y = max(0, crop_y2 - 400)
+                            
+                            # Crop the image around the center of the bounding box
+                            cropped_result = result[crop_y:crop_y2, crop_x:crop_x2]
+                            
+                            # Send processed image to GUI
+                            self.image_captured_signal.emit(cropped_result)
 
-                cropped_frame = background_removed_frame[y:y+h,x:x+w]
+                            # Save edited image     
+                            directory_path = chosen_settings["directory_name"]
+                            if not os.path.exists(directory_path):
+                                os.makedirs(directory_path)
+                                print(f"Created New Directory: '{directory_path}'")
 
-                # prints out if a screenshot has been taken
-                print(f"Screenshot taken: {screenshot_filename}")
-                cv2.imwrite( screenshot_filename, original_frame )
-                self.image_saved = True
+                            fileName = directory_path + "_" + str(image_counter) + '.png'
+                            cv2.imwrite(screenshotDir, cropped_result)
+                            print(f"Screenshot taken [Img Edit]: {fileName}")      
 
-                # remove background of image and send back to GUI for second screen
-                self.image_captured_signal.emit(cropped_frame)
+                            # Save original frame using existing naming convention
+                            screenshotDir = "Sherd_" + str(image_counter) + '.png'
+                            print(f"Screenshot taken [Img Original]: {screenshotDir}")
 
-            if (self.xQ.get() < self.frameWidth/4):
-                self.image_saved = False
-   
-            # sends video feed back to UI
+                            image_counter += 1
+
+                            self.image_saved = True
+            # Reset screenshot_taken flag when no object is centered
+            if not object_centered:
+                screenshot_taken = False
+
+            # Send video feed to UI
             self.video_view_signal.emit(frame)
 
-    # function decides how much to crop the image
-    def get_crop_area(self, x,y,w,h, image_width, image_height):
-
-        # checking top left corner
-        x1 = x - 20
-        if ( x1 < 0 ):
-            x1 = 0
-        # check top left corner
-        y1 = y - 20
-        if ( y1 < 0 ):
-            y1 = 0
-        # check width
-        w1 = w + 40
-        if ( w1 + x > image_width):
-            w1 = image_width - x
-        # check width and height
-        h1 = h + 40
-        if ( h1 + y > image_height):
-            h1 = image_height - y
-        return x1,y1,w1,h1
+    def get_crop_area(self, x, y, w, h, image_width, image_height):
+        x1 = max(x - 20, 0)
+        y1 = max(y - 20, 0)
+        w1 = w + 40 if w + 40 + x <= image_width else image_width - x
+        h1 = h + 40 if h + 40 + y <= image_height else image_height - y
+        return x1, y1, w1, h1
