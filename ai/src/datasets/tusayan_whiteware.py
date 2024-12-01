@@ -82,7 +82,7 @@ def create_training_test_sets(image_dir, training_split):
   return True
 
 
-def load_data(image_dimension, training_split, batch_size=32):
+def load_data(image_dimension, training_split, batch_size=32, regenerate=False):
   """
   @params:
     image_dimension: a tuple containing the size to resize images (height, width)
@@ -99,7 +99,7 @@ def load_data(image_dimension, training_split, batch_size=32):
   imagelist_path = Path('.').resolve().parents[1] / 'image_data' / 'image_list.csv'
   tusayan_ww_path = imagelist_path.parent / 'tusayan_whiteware'
 
-  if not tusayan_ww_path.exists():
+  if not tusayan_ww_path.exists() or not regenerate:
     # Create both sets
     print(f'Creating training and test sets')
     create_training_test_sets(imagelist_path.parent, train_split + val_split)
