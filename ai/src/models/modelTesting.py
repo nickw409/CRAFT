@@ -54,7 +54,8 @@ data_augmentation = keras.Sequential([
 (train_dataset, test_dataset) = tusayan_whiteware.load_data(
    image_dimension=(image_dim, image_dim),
    training_split=(0.8,0.0,0.2),
-   batch_size=batch_size
+   batch_size=batch_size,
+   regenerate=True
    )
 
 train_dataset = train_dataset.map(lambda x, y: (data_augmentation(x), y),
