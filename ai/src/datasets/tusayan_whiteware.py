@@ -94,6 +94,7 @@ def load_data(image_dimension, training_split, batch_size=32):
   """
   train_split = training_split[0]
   val_split = training_split[1]
+  test_split = train_split[2]
 
   imagelist_path = Path('.').resolve().parents[1] / 'image_data' / 'image_list.csv'
   tusayan_ww_path = imagelist_path.parent / 'tusayan_whiteware'
@@ -147,5 +148,7 @@ def load_data(image_dimension, training_split, batch_size=32):
   )
   if val_split != 0.0:
     return (train_ds, val_ds, test_ds)
-  else:
+  elif test_split != 0.0:
     return (train_ds, test_ds)
+  else:
+    return train_ds
