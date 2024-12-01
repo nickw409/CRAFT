@@ -34,7 +34,7 @@ class CameraThread(QThread):
 
     def run(self):
         # run the thread
-        cap = cv2.VideoCapture(1)
+        cap = cv2.VideoCapture(0)
         self.frameWidth = cap.get(cv2.CAP_PROP_FRAME_WIDTH)
 
         ret, background = cap.read()
@@ -135,12 +135,15 @@ class CameraThread(QThread):
                                 print(f"Created New Directory: '{directory_path}'")
 
                             fileName = directory_path + "_" + str(image_counter) + '.png'
-                            cv2.imwrite(screenshotDir, cropped_result)
+                            fileName = os.path.join(directory_path, fileName)
+                            cv2.imwrite(fileName, cropped_result)
                             print(f"Screenshot taken [Img Edit]: {fileName}")      
 
                             # Save original frame using existing naming convention
-                            screenshotDir = "Sherd_" + str(image_counter) + '.png'
-                            print(f"Screenshot taken [Img Original]: {screenshotDir}")
+                            screenshot = "Sherd_" + str(image_counter) + '.png'
+                            screenshot = os.path.join(directory_path, screenshot)
+                            cv2.imwrite(screenshot, cropped_result)
+                            print(f"Screenshot taken [Img Original]: {screenshot}")
 
                             image_counter += 1
 
@@ -151,6 +154,15 @@ class CameraThread(QThread):
 
             # Send video feed to UI
             self.video_view_signal.emit(frame)
+
+        #check if user would like to have sherd be classified
+        if (chosen_settings["classify_bool"]):
+            import modelClassify
+
+            #classify sherds
+            modelClassify.classifySherds(directory_path)
+
+        
 
     def get_crop_area(self, x, y, w, h, image_width, image_height):
         x1 = max(x - 20, 0)
