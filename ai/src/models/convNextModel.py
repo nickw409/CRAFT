@@ -1,6 +1,6 @@
 import keras
 from keras.api import layers
-from keras.api.applications import ConvNeXtBase
+from keras.api.applications import ConvNeXtBase, ConvNeXtXLarge
 import keras.api
 import math
 import matplotlib.pyplot as plt
@@ -27,6 +27,7 @@ class ConvNextModel:
           epochs_head,
           l2_constant,
           model_path,
+          output_path=None,
           use_step_decay=True
     ):
         self.image_dim = image_dim
@@ -36,6 +37,7 @@ class ConvNextModel:
         self.epochs_head = epochs_head
         self.l2_constant = l2_constant
         self.model_path = model_path
+        self.output_path = output_path
         self.use_step_decay = use_step_decay
         self.history = None
         self.model = self.build()
@@ -47,6 +49,7 @@ class ConvNextModel:
        head_model = self.base_model.output
        head_model = layers.GlobalAveragePooling2D()(head_model)
        head_model = layers.Flatten()(head_model)
+       head_model = layers.Dropout(0.5)(head_model)
        head_model = layers.Dense(512, 
                                  activation="relu",
                                  kernel_regularizer=keras.regularizers.L2(self.l2_constant))(head_model)
@@ -55,7 +58,7 @@ class ConvNextModel:
        return keras.models.Model(inputs=self.base_model.input, outputs=head_model)
     
     def evaluate(self, test_dataset):
-        print("Evaluating TusNet Model...")
+        print("Evaluating Model...")
         y_true = []
         y_pred = []
         for image_batch, label_batch in test_dataset:
@@ -73,6 +76,7 @@ class ConvNextModel:
         con_mat=confusion_matrix(np.argmax(correct_labels, axis=1), predicted_labels)
         print(con_mat)
 
+        """
         # plot the accuracy
         plt.style.use("ggplot")
         plt.figure(figsize=(11, 8))
@@ -82,7 +86,9 @@ class ConvNextModel:
         plt.xlabel("Epoch #")
         plt.ylabel("Accuracy")
         plt.legend()
-        #plt.savefig(full_model_path + "_accuracy_plot.png")
+        if self.output_path:
+            acc_path = self.output_path / 'accuracy_plot.png'
+            plt.savefig(acc_path)
 
         # plot the training loss
         plt.style.use("ggplot")
@@ -94,8 +100,12 @@ class ConvNextModel:
         plt.ylabel("Loss")
         #plt.ylim(0, 2.0)
         plt.legend()
-        #plt.savefig(full_model_path  + "_loss_plot.png")
-        plt.show()
+        if self.output_path:
+            loss_path = self.output_path / 'loss_plot.png'
+            plt.savefig(loss_path)
+        else:
+            plt.show()
+        """
 
     def load_model(self):
         self.model = keras.models.load_model(self.model_path)
