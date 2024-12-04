@@ -47,6 +47,7 @@ class ConvNextModel:
        head_model = self.base_model.output
        head_model = layers.GlobalAveragePooling2D()(head_model)
        head_model = layers.Flatten()(head_model)
+       head_model = layers.Dropout(0.5)(head_model)
        head_model = layers.Dense(512, 
                                  activation="relu",
                                  kernel_regularizer=keras.regularizers.L2(self.l2_constant))(head_model)
@@ -55,7 +56,7 @@ class ConvNextModel:
        return keras.models.Model(inputs=self.base_model.input, outputs=head_model)
     
     def evaluate(self, test_dataset):
-        print("Evaluating TusNet Model...")
+        print("Evaluating Model...")
         y_true = []
         y_pred = []
         for image_batch, label_batch in test_dataset:

@@ -7,8 +7,8 @@ import numpy as np
 from pathlib import Path
 import sys
 import tensorflow as tf
+from keras.src.legacy.preprocessing.image import ImageDataGenerator
 
-from tusNetModel import TusNetModel
 from convNextModel import ConvNextModel
 try:
   sys.path.append(str(Path('.').resolve().parent))
@@ -35,14 +35,29 @@ data_augmentation = keras.Sequential([
                       fill_value=1.0),
 ])
 
+#Parameters for ImageDataGenerator
+shift=0.0
+zoom=0.3
+# construct the image generator for data augmentation
+#fill_mode is value put into empty spaces created by rotation or zooming; cval=1.0 means white
+aug = ImageDataGenerator(rotation_range=180,
+	horizontal_flip=False, vertical_flip=False, width_shift_range=shift, 
+    height_shift_range=shift, zoom_range=zoom, fill_mode="constant",cval=1.0)
+
+def augment_images(image, label):
+  image = aug.random_transform(image.numpy())
+  return image, label
+
 (train_dataset, test_dataset) = tusayan_whiteware.load_data(
    image_dimension=(image_dim, image_dim),
    training_split=(0.8,0.0,0.2),
    batch_size=batch_size
    )
 
-train_dataset = train_dataset.map(lambda x, y: (data_augmentation(x), y),
-                                  num_parallel_calls=tf.data.AUTOTUNE)
+#train_dataset = train_dataset.map(lambda x, y: (data_augmentation(x), y),
+#                                  num_parallel_calls=tf.data.AUTOTUNE)
+
+train_dataset = train_dataset.map(augment_images, num_parallel_calls=tf.data.AUTOTUNE)
 
 model = ConvNextModel(image_dim=image_dim,
                       batch_size=batch_size,
