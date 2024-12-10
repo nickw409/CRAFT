@@ -58,7 +58,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> loadModel() async {
-    interpreter = await Interpreter.fromAsset('ResNet152V2.tflite');
+    interpreter = await Interpreter.fromAsset('convnext.tflite');
+
+    print('Interpreter loaded successfully');
 
     _inputShape = interpreter.getInputTensor(0).shape;
     _outputShape = interpreter.getOutputTensor(0).shape;
@@ -75,7 +77,7 @@ class _HomePageState extends State<HomePage> {
         .add(ResizeWithCropOrPadOp(cropSize, cropSize))
         .add(ResizeOp(
             _inputShape[1], _inputShape[2], ResizeMethod.nearestneighbour))
-        .add(NormalizeOp(0, 255))
+        // .add(NormalizeOp(0, 255))
         .build()
         .process(_inputImage);
   }
