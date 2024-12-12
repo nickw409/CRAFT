@@ -16,8 +16,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:provider/provider.dart';
 import 'package:image/image.dart' as img;
-import 'package:tflite_flutter_helper_plus/tflite_flutter_helper_plus.dart';
-import 'package:tflite_flutter_plus/tflite_flutter_plus.dart';
+import 'package:tflite_flutter/tflite_flutter.dart';
 
 class HomePage extends StatefulWidget {
   static const String id = 'home';
@@ -40,12 +39,6 @@ class _HomePageState extends State<HomePage> {
   late List<int> _inputShape;
   late List<int> _outputShape;
 
-  late TensorImage _inputImage;
-  late TensorBuffer _outputBuffer;
-
-  late TfLiteType _inputType;
-  late TfLiteType _outputType;
-
   final String _labelsFileName = 'assets/tww_labels.txt';
 
   Map<String, dynamic>? classificatoinMap;
@@ -58,28 +51,29 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future<void> loadModel() async {
-    interpreter = await Interpreter.fromAsset('convnext.tflite');
+    interpreter = await Interpreter.fromAsset('assets/convnext.tflite');
 
     print('Interpreter loaded successfully');
 
     _inputShape = interpreter.getInputTensor(0).shape;
     _outputShape = interpreter.getOutputTensor(0).shape;
-    _inputType = interpreter.getInputTensor(0).type;
-    _outputType = interpreter.getOutputTensor(0).type;
-    _outputBuffer = TensorBuffer.createFixedSize(_outputShape, _outputType);
-
-    labels = await FileUtil.loadLabels(_labelsFileName);
   }
 
-  TensorImage _preProcess() {
-    int cropSize = min(_inputImage.height, _inputImage.width);
-    return ImageProcessorBuilder()
-        .add(ResizeWithCropOrPadOp(cropSize, cropSize))
-        .add(ResizeOp(
-            _inputShape[1], _inputShape[2], ResizeMethod.nearestneighbour))
-        // .add(NormalizeOp(0, 255))
-        .build()
-        .process(_inputImage);
+  Uint8List preprocessImage(img.Image image, int inputSize) {
+    final resizedImage =
+        img.copyResize(image, width: inputSize, height: inputSize);
+    final Uint8List input = Uint8List(inputSize * inputSize * 3);
+
+    for (int y = 0; y < inputSize; y++) {
+      for (int x = 0; x < inputSize; x++) {
+        final pixel = resizedImage.getPixel(x, y);
+        input[(y * inputSize + x) * 3] = (img.getRed(pixel) * 255).toInt();
+        input[(y * inputSize + x) * 3 + 1] =
+            (img.getGreen(pixel) * 255).toInt();
+        input[(y * inputSize + x) * 3 + 2] = (img.getBlue(pixel) * 255).toInt();
+      }
+    }
+    return input;
   }
 
   Future<void> getCurrentUser() async {
@@ -146,9 +140,6 @@ class _HomePageState extends State<HomePage> {
     if (image == null) {
       return;
     }
-
-    // Convert the image to grayscale
-    // img.Image grayscaleImage = img.grayscale(image);
 
     imageForModel = image;
 
@@ -220,39 +211,71 @@ class _HomePageState extends State<HomePage> {
       classificaitonData = "Classified";
     });
 
-    _inputImage = TensorImage(_inputType);
-    _inputImage.loadImage(imageForModel!);
-    _inputImage = _preProcess();
+    // Ensure input size is exactly 224x224
+    final inputSize = 224;
+    final resizedImage = img.copyResize(imageForModel!,
+        width: inputSize,
+        height: inputSize,
+        interpolation: img.Interpolation.average);
 
-    interpreter.run(_inputImage.buffer, _outputBuffer.getBuffer());
+    final input = List.generate(
+        1,
+        (_) => List.generate(
+            inputSize,
+            (_) =>
+                List.generate(inputSize, (_) => List<double>.filled(3, 0.0))));
 
-    Map<String, double> resultMap = {};
+    for (int y = 0; y < inputSize; y++) {
+      for (int x = 0; x < inputSize; x++) {
+        final pixel = resizedImage.getPixel(x, y);
 
-    for (int i = 0; i < labels.length; i++) {
-      // resultMap[labels[i]] = _outputBuffer.getDoubleList()[i];
-      double confidence = _outputBuffer.getDoubleList()[i];
-      if (confidence > 0.1) {
-        resultMap[labels[i]] = confidence;
+        // Preprocessing matches the script's cv2 preprocessing
+        // Convert to BGR (OpenCV default) and normalize
+        input[0][y][x][0] = (img.getBlue(pixel) / 255.0);
+        input[0][y][x][1] = (img.getGreen(pixel) / 255.0);
+        input[0][y][x][2] = (img.getRed(pixel) / 255.0);
       }
     }
-    String highestConfidenceLabel = '';
-    double highestConfidenceValue = 0.0;
 
-    resultMap.forEach((label, value) {
-      if (value > highestConfidenceValue) {
-        highestConfidenceValue = value;
-        highestConfidenceLabel = label;
-      }
-    });
+    final outputBuffer =
+        List.generate(1, (_) => List.filled(_outputShape[1], 0.0));
 
-    setState(() {
-      classificatoinMap = {
-        'primaryClassification': highestConfidenceLabel,
-        'allClassificatoins': resultMap,
-        'lattitude': pos.latitude,
-        'longitude': pos.longitude,
-      };
-    });
+    try {
+      interpreter.run(input, outputBuffer);
+
+      final results = outputBuffer[0];
+      print('Raw output: $results');
+    } catch (e) {
+      print('Error running inference: $e');
+    }
+
+    // Map<String, double> resultMap = {};
+
+    // for (int i = 0; i < labels.length; i++) {
+    //   // resultMap[labels[i]] = _outputBuffer.getDoubleList()[i];
+    //   double confidence = _outputBuffer.getDoubleList()[i];
+    //   if (confidence > 0.1) {
+    //     resultMap[labels[i]] = confidence;
+    //   }
+    // }
+    // String highestConfidenceLabel = '';
+    // double highestConfidenceValue = 0.0;
+
+    // resultMap.forEach((label, value) {
+    //   if (value > highestConfidenceValue) {
+    //     highestConfidenceValue = value;
+    //     highestConfidenceLabel = label;
+    //   }
+    // });
+
+    // setState(() {
+    //   classificatoinMap = {
+    //     'primaryClassification': highestConfidenceLabel,
+    //     'allClassificatoins': resultMap,
+    //     'lattitude': pos.latitude,
+    //     'longitude': pos.longitude,
+    //   };
+    // });
   }
 
   Future<Position> _determinePosition() async {
@@ -698,19 +721,19 @@ class _HomePageState extends State<HomePage> {
                               // const Text('Primary Classification:',
                               //     style:
                               //         TextStyle(fontWeight: FontWeight.bold)),
-                              Text(
-                                "${classificatoinMap!['primaryClassification'].toString()} [${classificatoinMap!['allClassificatoins']?[classificatoinMap!['primaryClassification']]?.toStringAsFixed(3) ?? "0.0"}]",
-                                style: const TextStyle(
-                                    fontSize: 20, fontWeight: FontWeight.bold),
-                              ),
-                              const Text(
-                                'Model Prediction:',
-                                style: TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              ...classificatoinMap!['allClassificatoins']
-                                  .entries
-                                  .map((entry) => Text(
-                                      '${entry.key}: ${entry.value.toStringAsFixed(3)}')),
+                              // Text(
+                              //   "${classificatoinMap!['primaryClassification'].toString()} [${classificatoinMap!['allClassificatoins']?[classificatoinMap!['primaryClassification']]?.toStringAsFixed(3) ?? "0.0"}]",
+                              //   style: const TextStyle(
+                              //       fontSize: 20, fontWeight: FontWeight.bold),
+                              // ),
+                              // const Text(
+                              //   'Model Prediction:',
+                              //   style: TextStyle(fontWeight: FontWeight.bold),
+                              // ),
+                              // ...classificatoinMap!['allClassificatoins']
+                              //     .entries
+                              //     .map((entry) => Text(
+                              //         '${entry.key}: ${entry.value.toStringAsFixed(3)}')),
                               // Text(
                               //     "Location: ${classificatoinMap!['lattitude'].toStringAsFixed(4)}, ${classificatoinMap!['longitude'].toStringAsFixed(4)}"),
                               // const Text("Other Classifications:"),
