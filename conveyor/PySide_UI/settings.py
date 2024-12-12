@@ -1,21 +1,22 @@
-from PySide6.QtWidgets import (QLabel, QWidget, QGridLayout, QLineEdit, QPushButton, QFileDialog, QCheckBox )
+from PySide6.QtWidgets import (QLabel, QWidget, QGridLayout, QLineEdit, QPushButton, QCheckBox, QFileDialog)
 from PySide6.QtCore import Qt, Signal
 
-chosen_settings = {"saved_img_dir":"",
-                   "saved_img_csv_file":"",
-                   "img_latitude": "",
-                   "img_longitude": "",
+chosen_settings = {"site_id": "",
+                   "feature_id": "",
+                   "level_id": "",
+                   "directory_name": "",
+                   "csv_file_name": "",
                    "classify_bool": False,
-                   "upload_bool": False,
-                   "training_data_dir":""}
+                   "training_data_dir": ""}
+#training_data_dir is a bad name, its really just the dir you want to append your info to alongside the one we create/are already using
 
 class Settings(QWidget):
-    # create signals to pass data to other files
+    # Signal to pass data to other files
     save_settings_signal = Signal()
 
     def __init__(self):
         super().__init__()
-        
+
         grid = QGridLayout()
         grid.setColumnStretch(0, 1)
         grid.setColumnStretch(1, 1)
@@ -23,101 +24,82 @@ class Settings(QWidget):
         grid.setColumnStretch(3, 1)
         grid.setColumnStretch(4, 1)
 
-        # option 1: directory for saved images
-        self.saved_image_dir_message = QLabel("Select an existing directory to save images in: ")
-        self.saved_image_dir_input = QLineEdit()
-        self.saved_image_dir_input.setReadOnly(True)
-        saved_image_dir_button = QPushButton("Search Files")
-        saved_image_dir_button.clicked.connect(self.directory_dialog)
+        # Option 1: Site ID
+        site_id_message = QLabel("Enter Site ID:")
+        self.site_id_input = QLineEdit()
 
-            # option 1: layout
-        grid.addWidget(self.saved_image_dir_message, 1, 0, 1, 5)
-        grid.addWidget(self.saved_image_dir_input, 2, 0, 1, 4)
-        grid.addWidget(saved_image_dir_button, 2, 4)
+        grid.addWidget(site_id_message, 1, 0, 1, 5)
+        grid.addWidget(self.site_id_input, 2, 0, 1, 4)
 
-        # option 2: directory to save csv file data
-        # TODO: fix. currently only allows existing csv files to be written to
-        csv_file_message = QLabel("Select an existing file to save CSV data to: ")
-        self.csv_file_input = QLineEdit()
-        self.csv_file_input.setReadOnly(True)
-        csv_file_button = QPushButton("Search Files")
-        csv_file_button.clicked.connect(self.csv_dialog)
+        # Option 2: Feature ID
+        feature_id_message = QLabel("Enter Feature ID (optional):")
+        self.feature_id_input = QLineEdit()
 
-            # option 2: layout
-        grid.addWidget(csv_file_message, 3, 0, 1, 5)
-        grid.addWidget(self.csv_file_input, 4, 0, 1, 4)
-        grid.addWidget(csv_file_button, 4, 4)
+        grid.addWidget(feature_id_message, 3, 0, 1, 5)
+        grid.addWidget(self.feature_id_input, 4, 0, 1, 4)
 
-        # option 3: change latitude and longitude
-        latitude_message = QLabel("Enter latitude: ")
-        self.latitude_input = QLineEdit()
-        longitude_message = QLabel("Enter longitude: ")
-        self.longitude_input = QLineEdit()
+        # Option 3: Level ID
+        level_id_message = QLabel("Enter Level ID (optional):")
+        self.level_id_input = QLineEdit()
 
-            # option 3: layout
-        grid.addWidget(latitude_message, 5, 0, 1, 5)
-        grid.addWidget(self.latitude_input, 6, 0, 1, 3)
-        grid.addWidget(longitude_message, 7, 0, 1, 5)
-        grid.addWidget(self.longitude_input, 8, 0, 1, 3)
+        grid.addWidget(level_id_message, 5, 0, 1, 5)
+        grid.addWidget(self.level_id_input, 6, 0, 1, 4)
 
-        # option 4: classify images?
-        classify_checkbox_message = QLabel("Classify images with deep learning model: ")
+        # Option 4: Classify images?
+        classify_checkbox_message = QLabel("Classify images with deep learning model:")
         self.classify_checkbox = QCheckBox()
 
-            # option 4: layout
-        grid.addWidget(classify_checkbox_message, 9, 0, 1, 2)
-        grid.addWidget(self.classify_checkbox, 9, 2)
+        grid.addWidget(classify_checkbox_message, 7, 0, 1, 2)
+        grid.addWidget(self.classify_checkbox, 7, 2)
 
-        # option 5: upload images to cloud storage?
-        upload_checkbox_message = QLabel("Upload saved images to cloud storage: ")
-        self.upload_checkbox = QCheckBox()
-
-            # option 5: layout
-        grid.addWidget(upload_checkbox_message, 10, 0, 1, 2)
-        grid.addWidget(self.upload_checkbox, 10, 2)
-
-        # option 6: add to training data?
-        training_data_message = QLabel("Select an existing csv file of training data to add images to: ")
+        # Option 6: Add to training data?
+        training_data_message = QLabel("Select an existing CSV file of training data to add images to:")
         self.training_data_input = QLineEdit()
         self.training_data_input.setReadOnly(True)
         training_data_button = QPushButton("Search Files")
         training_data_button.clicked.connect(self.training_csv_dialog)
 
-            # option 6: layout
-        grid.addWidget(training_data_message, 11, 0, 1, 5)
-        grid.addWidget(self.training_data_input, 12, 0, 1, 4)
-        grid.addWidget(training_data_button, 12, 4)
+        grid.addWidget(training_data_message, 9, 0, 1, 5)
+        grid.addWidget(self.training_data_input, 10, 0, 1, 4)
+        grid.addWidget(training_data_button, 10, 4)
 
-        # submit button
+        # Submit button
         save_button = QPushButton("Save")
         save_button.clicked.connect(self.save_settings)
-        grid.addWidget(save_button, 13, 2, 1, 1)
+        grid.addWidget(save_button, 11, 2, 1, 1)
 
-        # set the layout
+        # Set the layout
         grid.setRowStretch(0, 1)
-        grid.setRowStretch(14, 1)
+        grid.setRowStretch(12, 1)
         self.setLayout(grid)
 
     def save_settings(self):
         self.save_settings_signal.emit()
 
-        # save settings data
-        chosen_settings["saved_img_dir"] = self.saved_image_dir_input.text()
-        chosen_settings["saved_img_csv_file"] = self.csv_file_input.text()
-        chosen_settings["img_latitude"] = self.latitude_input.text()
-        chosen_settings["img_longitude"] = self.longitude_input.text()
-        chosen_settings["classify_bool"] = self.classify_checkbox.isChecked()
-        chosen_settings["upload_bool"] = self.upload_checkbox.isChecked()
-        chosen_settings["training_data_dir"] = self.training_data_input.text()
+        # Save settings data
+        chosen_settings["site_id"] = self.site_id_input.text()
+        chosen_settings["feature_id"] = self.feature_id_input.text()
+        chosen_settings["level_id"] = self.level_id_input.text()
 
-    def directory_dialog(self):
-        image_dir = QFileDialog.getExistingDirectory(self, str("Open Directory"), "/home", QFileDialog.ShowDirsOnly)
-        self.saved_image_dir_input.setText(image_dir)
-    
-    def csv_dialog(self):
-        file = QFileDialog.getOpenFileName(self, str("Open CSV"), "/home", str("CSV Files (*.csv)"))
-        self.csv_file_input.setText(file[0])
+        # Create directory and CSV file name
+        site_id = chosen_settings["site_id"]
+        feature_id = chosen_settings["feature_id"]
+        level_id = chosen_settings["level_id"]
+
+        if feature_id and level_id:
+            dir_csv_name = f"{site_id}_{feature_id}_{level_id}"
+        elif feature_id:
+            dir_csv_name = f"{site_id}_{feature_id}"
+        else:
+            dir_csv_name = site_id
+
+        chosen_settings["directory_name"] = dir_csv_name
+        chosen_settings["csv_file_name"] = f"{dir_csv_name}.csv"
+
+        chosen_settings["classify_bool"] = self.classify_checkbox.isChecked()
+        chosen_settings["training_data_dir"] = self.training_data_input.text()
+        print(dir_csv_name)
 
     def training_csv_dialog(self):
-        file = QFileDialog.getOpenFileName(self, str("Open CSV"), "/home", str("CSV Files (*.csv)"))
-        self.training_data_input.setText(file[0])       
+        file = QFileDialog.getOpenFileName(self, "Open CSV", "/home", "CSV Files (*.csv)")
+        self.training_data_input.setText(file[0])

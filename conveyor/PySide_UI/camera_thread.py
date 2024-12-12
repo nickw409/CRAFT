@@ -3,6 +3,8 @@ from PySide6.QtCore import QThread, Signal
 import numpy as np
 import imutils
 import time
+import csv
+from pathlib import Path
 from image_utils import MovingAverageQ
 from settings import chosen_settings
 import numpy
@@ -52,7 +54,28 @@ class CameraThread(QThread):
         # Flag to prevent multiple screenshots and a counter for image naming
         screenshot_taken = False
         image_counter = 0
-        
+
+        directory_path = chosen_settings["directory_name"]
+        csv_fileName = directory_path + '.csv'
+
+        # Ensure the directory exists
+        if not os.path.exists(directory_path):
+            os.makedirs(directory_path)  # Create the directory
+
+        csv_path = os.path.join(directory_path, csv_fileName)
+
+        # Open CSV file in append mode ('a') if it exists, otherwise create it
+        if os.path.exists(csv_path):
+            print(f"CSV file '{csv_path}' exists. Data will be appended.")
+            csv_file = open(csv_path, 'a', newline='')
+        else:
+            print(f"CSV file '{csv_path}' does not exist. Creating a new CSV file.")
+            csv_file = open(csv_path, 'w', newline='')  # 'w' to create a new file
+            csv_writer = csv.writer(csv_file)
+            # Add only the "Image Name" header to the new CSV file
+            csv_writer.writerow(["Image Name"])
+
+        csv_writer = csv.writer(csv_file)
         while not self.stop:
             ret, frame = cap.read()
             if not ret:
@@ -143,7 +166,6 @@ class CameraThread(QThread):
                         self.image_captured_signal.emit(cropped_result)
 
                         # Save edited image     
-                        directory_path = chosen_settings["directory_name"]
                         if not os.path.exists(directory_path):
                             os.makedirs(directory_path)
                             print(f"Created New Directory: '{directory_path}'")
@@ -151,12 +173,18 @@ class CameraThread(QThread):
                         fileName = directory_path + "_" + str(image_counter) + '.png'
                         fileName = os.path.join(directory_path, fileName)
                         cv2.imwrite(fileName, cropped_result)
-                        print(f"Screenshot taken [Img Edit]: {fileName}")      
 
-                        # Save original frame using existing naming convention
+                        print(f"Screenshot taken [Img Edit]: {fileName}")
+                        csv_writer.writerow([fileName])      
+
+                        # Ensure the 'archive' subdirectory exists under the main directory_path
+                        archive_path = Path('.') / "Archive"
+                        os.makedirs(archive_path, exist_ok=True)
+
+                        # Save the original frame using the existing naming convention in the 'archive' directory
                         screenshot = "Sherd_" + str(image_counter) + '.png'
-                        screenshot = os.path.join(directory_path, screenshot)
-                        cv2.imwrite(screenshot, frame)     
+                        screenshot = os.path.join(archive_path, screenshot)
+                        #cv2.imwrite(screenshot, frame)
                         print(f"Screenshot taken [Img Original]: {screenshot}")
 
                         image_counter += 1
@@ -172,8 +200,11 @@ class CameraThread(QThread):
         # Check if user would like to have sherd be classified
         if (chosen_settings["classify_bool"]):
             import modelClassify
+            #close csv so it can be written to
+            csv_file.close()
+
             # Classify sherds
-            modelClassify.classifySherds(directory_path)
+            modelClassify.classifySherds(directory_path, chosen_settings["training_data_dir"])
 
     def get_crop_area(self, x, y, w, h, image_width, image_height):
         x1 = max(x - 20, 0)
