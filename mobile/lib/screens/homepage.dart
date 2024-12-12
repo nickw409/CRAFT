@@ -34,12 +34,16 @@ class _HomePageState extends State<HomePage> {
   img.Image? imageForModel;
 
   late Interpreter interpreter;
-  late List<String> labels;
-
-  late List<int> _inputShape;
+  List<String> labels = [
+    "Kana'a",
+    "Black Mesa",
+    "Sosi",
+    "Dogoszhi",
+    "Flagstaff",
+    "Tusayan",
+    "Kayenta"
+  ];
   late List<int> _outputShape;
-
-  final String _labelsFileName = 'assets/tww_labels.txt';
 
   Map<String, dynamic>? classificatoinMap;
 
@@ -52,28 +56,7 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> loadModel() async {
     interpreter = await Interpreter.fromAsset('assets/convnext.tflite');
-
-    print('Interpreter loaded successfully');
-
-    _inputShape = interpreter.getInputTensor(0).shape;
     _outputShape = interpreter.getOutputTensor(0).shape;
-  }
-
-  Uint8List preprocessImage(img.Image image, int inputSize) {
-    final resizedImage =
-        img.copyResize(image, width: inputSize, height: inputSize);
-    final Uint8List input = Uint8List(inputSize * inputSize * 3);
-
-    for (int y = 0; y < inputSize; y++) {
-      for (int x = 0; x < inputSize; x++) {
-        final pixel = resizedImage.getPixel(x, y);
-        input[(y * inputSize + x) * 3] = (img.getRed(pixel) * 255).toInt();
-        input[(y * inputSize + x) * 3 + 1] =
-            (img.getGreen(pixel) * 255).toInt();
-        input[(y * inputSize + x) * 3 + 2] = (img.getBlue(pixel) * 255).toInt();
-      }
-    }
-    return input;
   }
 
   Future<void> getCurrentUser() async {
@@ -135,7 +118,7 @@ class _HomePageState extends State<HomePage> {
     final Uint8List imageBytes = await imageFile.readAsBytes();
 
     // Decode the image using the image package
-    img.Image? image = img.decodeImage(imageBytes);
+    img.Image? image = img.decodeImage(Uint8List.fromList(imageBytes));
 
     if (image == null) {
       return;
@@ -206,18 +189,17 @@ class _HomePageState extends State<HomePage> {
     //randomize the position by 500 meters
     pos = randomizePosition(pos, 500);
 
-    setState(() {
-      currentPosition = pos;
-      classificaitonData = "Classified";
-    });
-
-    // Ensure input size is exactly 224x224
-    final inputSize = 224;
-    final resizedImage = img.copyResize(imageForModel!,
+    const inputSize = 224;
+    // Resize the image
+    final imageBytes = await selectedImage!.readAsBytes();
+    final decodedImage = img.decodeImage(imageBytes);
+    if (decodedImage == null) return;
+    final resizedImage = img.copyResize(decodedImage,
         width: inputSize,
         height: inputSize,
         interpolation: img.Interpolation.average);
 
+    // Prepare the input buffer for the TFLite model
     final input = List.generate(
         1,
         (_) => List.generate(
@@ -225,57 +207,54 @@ class _HomePageState extends State<HomePage> {
             (_) =>
                 List.generate(inputSize, (_) => List<double>.filled(3, 0.0))));
 
+    // Keep original RGB values
     for (int y = 0; y < inputSize; y++) {
       for (int x = 0; x < inputSize; x++) {
         final pixel = resizedImage.getPixel(x, y);
-
-        // Preprocessing matches the script's cv2 preprocessing
-        // Convert to BGR (OpenCV default) and normalize
-        input[0][y][x][0] = (img.getBlue(pixel) / 255.0);
-        input[0][y][x][1] = (img.getGreen(pixel) / 255.0);
-        input[0][y][x][2] = (img.getRed(pixel) / 255.0);
+        input[0][y][x][0] = img.getRed(pixel).toDouble();
+        input[0][y][x][1] = img.getGreen(pixel).toDouble();
+        input[0][y][x][2] = img.getBlue(pixel).toDouble();
       }
     }
 
+// Run the model inference
     final outputBuffer =
         List.generate(1, (_) => List.filled(_outputShape[1], 0.0));
 
-    try {
-      interpreter.run(input, outputBuffer);
+    interpreter.run(input, outputBuffer);
 
-      final results = outputBuffer[0];
-      print('Raw output: $results');
-    } catch (e) {
-      print('Error running inference: $e');
+    Map<String, double> resultMap = {};
+
+    for (int i = 0; i < labels.length; i++) {
+      double confidence = outputBuffer[0][i];
+      if (confidence > 0.1) {
+        resultMap[labels[i]] = confidence;
+      }
     }
 
-    // Map<String, double> resultMap = {};
+    String highestConfidenceLabel = '';
+    double highestConfidenceValue = 0.0;
 
-    // for (int i = 0; i < labels.length; i++) {
-    //   // resultMap[labels[i]] = _outputBuffer.getDoubleList()[i];
-    //   double confidence = _outputBuffer.getDoubleList()[i];
-    //   if (confidence > 0.1) {
-    //     resultMap[labels[i]] = confidence;
-    //   }
-    // }
-    // String highestConfidenceLabel = '';
-    // double highestConfidenceValue = 0.0;
+    resultMap.forEach((label, value) {
+      if (value > highestConfidenceValue) {
+        highestConfidenceValue = value;
+        highestConfidenceLabel = label;
+      }
+    });
 
-    // resultMap.forEach((label, value) {
-    //   if (value > highestConfidenceValue) {
-    //     highestConfidenceValue = value;
-    //     highestConfidenceLabel = label;
-    //   }
-    // });
+    setState(() {
+      classificatoinMap = {
+        'primaryClassification': highestConfidenceLabel,
+        'allClassificatoins': resultMap,
+        'lattitude': pos.latitude,
+        'longitude': pos.longitude,
+      };
+    });
 
-    // setState(() {
-    //   classificatoinMap = {
-    //     'primaryClassification': highestConfidenceLabel,
-    //     'allClassificatoins': resultMap,
-    //     'lattitude': pos.latitude,
-    //     'longitude': pos.longitude,
-    //   };
-    // });
+    setState(() {
+      currentPosition = pos;
+      classificaitonData = "Classified";
+    });
   }
 
   Future<Position> _determinePosition() async {
@@ -718,25 +697,25 @@ class _HomePageState extends State<HomePage> {
                           padding: const EdgeInsets.all(12.0),
                           child: Column(
                             children: [
-                              // const Text('Primary Classification:',
-                              //     style:
-                              //         TextStyle(fontWeight: FontWeight.bold)),
-                              // Text(
-                              //   "${classificatoinMap!['primaryClassification'].toString()} [${classificatoinMap!['allClassificatoins']?[classificatoinMap!['primaryClassification']]?.toStringAsFixed(3) ?? "0.0"}]",
-                              //   style: const TextStyle(
-                              //       fontSize: 20, fontWeight: FontWeight.bold),
-                              // ),
-                              // const Text(
-                              //   'Model Prediction:',
-                              //   style: TextStyle(fontWeight: FontWeight.bold),
-                              // ),
-                              // ...classificatoinMap!['allClassificatoins']
-                              //     .entries
-                              //     .map((entry) => Text(
-                              //         '${entry.key}: ${entry.value.toStringAsFixed(3)}')),
-                              // Text(
-                              //     "Location: ${classificatoinMap!['lattitude'].toStringAsFixed(4)}, ${classificatoinMap!['longitude'].toStringAsFixed(4)}"),
-                              // const Text("Other Classifications:"),
+                              const Text('Primary Classification:',
+                                  style:
+                                      TextStyle(fontWeight: FontWeight.bold)),
+                              Text(
+                                "${classificatoinMap!['primaryClassification'].toString()} [${classificatoinMap!['allClassificatoins']?[classificatoinMap!['primaryClassification']]?.toStringAsFixed(3) ?? "0.0"}]",
+                                style: const TextStyle(
+                                    fontSize: 20, fontWeight: FontWeight.bold),
+                              ),
+                              const Text(
+                                'Model Prediction:',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
+                              ...classificatoinMap!['allClassificatoins']
+                                  .entries
+                                  .map((entry) => Text(
+                                      '${entry.key}: ${entry.value.toStringAsFixed(3)}')),
+                              Text(
+                                  "Location: ${classificatoinMap!['lattitude'].toStringAsFixed(4)}, ${classificatoinMap!['longitude'].toStringAsFixed(4)}"),
+                              const Text("Other Classifications:"),
                             ],
                           )),
                     )
