@@ -715,7 +715,6 @@ class _HomePageState extends State<HomePage> {
                                       '${entry.key}: ${entry.value.toStringAsFixed(3)}')),
                               Text(
                                   "Location: ${classificatoinMap!['lattitude'].toStringAsFixed(4)}, ${classificatoinMap!['longitude'].toStringAsFixed(4)}"),
-                              const Text("Other Classifications:"),
                             ],
                           )),
                     )
@@ -742,11 +741,26 @@ class _HomePageState extends State<HomePage> {
                   : Container(),
               selectedImage != null && classificaitonData != null
                   ? Center(
-                      child: FilledButton(
-                          onPressed: saveClassificationLocally,
-                          child: const Text('Save Classification')),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          FilledButton(
+                              onPressed: saveClassificationLocally,
+                              child: const Text('Save Classification')),
+                          FilledButton(
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    PageTransition(
+                                        child: const AboutTww(),
+                                        type: PageTransitionType.fade));
+                              },
+                              child: const Text('TWW About')),
+                        ],
+                      ),
                     )
                   : Container(),
+
               selectedImage != null && classificaitonData != null
                   ? Center(
                       child: TextButton(
