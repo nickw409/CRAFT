@@ -94,7 +94,7 @@ def load_data(image_dimension, training_split, batch_size=32, regenerate=False):
   """
   train_split = training_split[0]
   val_split = training_split[1]
-  test_split = train_split[2]
+  test_split = training_split[2]
 
   imagelist_path = Path('.').resolve().parents[1] / 'image_data' / 'image_list.csv'
   tusayan_ww_path = imagelist_path.parent / 'tusayan_whiteware'

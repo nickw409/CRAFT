@@ -35,7 +35,7 @@ if args.output:
 
 image_dim = 384
 num_classes = 7
-batch_size = 32
+batch_size = 16
 epochs = 100
 epochs_head = 15
 l2_constant = 0.02
@@ -61,20 +61,44 @@ aug = ImageDataGenerator(rotation_range=180,
     height_shift_range=shift, zoom_range=zoom, fill_mode="constant",cval=1.0)
 
 def augment_images(image, label):
-  image = aug.random_transform(image.numpy())
+  image = aug.random_transform(image)
   return image, label
 
 (train_dataset, test_dataset) = tusayan_whiteware.load_data(
    image_dimension=(image_dim, image_dim),
    training_split=(0.8,0.0,0.2),
    batch_size=batch_size,
-   regenerate=True
+   regenerate=False
    )
+
+train_generator = aug.flow_from_directory(
+   "../../image_data/tusayan_whiteware/Training",
+   target_size=(image_dim, image_dim),
+   batch_size=batch_size,
+   class_mode="categorical"
+)
+
+train_dataset = tf.data.Dataset.from_generator(
+   lambda: train_generator,
+   output_types=(tf.float32, tf.float32),
+   output_shapes=((None, image_dim, image_dim, 3), (None, num_classes))
+)
 
 #train_dataset = train_dataset.map(lambda x, y: (data_augmentation(x), y),
 #                                  num_parallel_calls=tf.data.AUTOTUNE)
 
-train_dataset = train_dataset.map(augment_images, num_parallel_calls=tf.data.AUTOTUNE)
+x_train = []
+y_train = []
+
+#for images, labels in train_dataset.take(-1):
+#   numpy_image = images.numpy()
+   
+#images, labels = tuple(zip(*train_dataset))
+#images = np.array(images)
+#labels = np.array(labels)
+
+#train_dataset = train_dataset.map(lambda x, y: (augment_images(x.numpy(), y)), 
+#                                  num_parallel_calls=tf.data.AUTOTUNE)
 
 model = ConvNextModel(image_dim=image_dim,
                       batch_size=batch_size,

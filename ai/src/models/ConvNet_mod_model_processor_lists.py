@@ -1,16 +1,17 @@
 # import the necessary packages
 from sklearn.preprocessing import LabelBinarizer
 from sklearn.metrics import classification_report,confusion_matrix
-from keras.api.callbacks import LearningRateScheduler,ModelCheckpoint,TensorBoard
-from keras.api.optimizers import RMSprop,SGD,Adam
-import keras.api.applications as modelList
-from keras.api.applications import ResNet152, ResNet152V2,DenseNet169, ResNet50,resnet,VGG16,vgg16,resnet_v2
-from keras.api.layers import Input, Dropout,Flatten,Dense,GlobalAveragePooling2D
-from keras.api.models import Model,load_model
-from keras.api.preprocessing.image import ImageDataGenerator
-from keras.api.utils import img_to_array
-from keras.api.applications import imagenet_utils
-from imutils import paths
+import tensorflow as tf
+from keras.callbacks import LearningRateScheduler,ModelCheckpoint,TensorBoard
+from keras.optimizers import RMSprop,SGD,Adam
+import keras.applications as modelList
+from keras.applications import ResNet152, ResNet152V2,DenseNet169, ResNet50,resnet,VGG16,vgg16,resnet_v2
+from keras.layers import Input, Dropout,Flatten,Dense,GlobalAveragePooling2D
+from keras.models import Model,load_model
+from keras.preprocessing.image import ImageDataGenerator
+from keras.utils import img_to_array
+from keras.applications import imagenet_utils
+#from imutils import paths
 from random import shuffle
 import numpy as np
 import argparse
@@ -22,8 +23,8 @@ from csv import reader
 
 
 #Needed for top layers of model
-from keras.api.layers import BatchNormalization
-from keras.api import regularizers
+from keras.layers import BatchNormalization
+from keras import regularizers
 
 #Adds top classification layer to transfer learning model
 def top_layers(baseModel, classes, D):
@@ -73,8 +74,8 @@ def create_data_arrays_list(imageData, image_dimension, verbose=-1):
     # loop over the input images
     for image_input in imageData:
         # load the image
-        
-        image = cv2.imread("C:/Ceramic_Models/no_wepo/images/"+image_input[0][:])
+        images_dir = os.getcwd() + "/images/"
+        image = cv2.imread(images_dir+image_input[0][:])
         
         alpha=1.3
         beta=0.0
@@ -123,18 +124,20 @@ ap.add_argument("-s", "--set", required=True,
 #Model number (to differentiate different runs
 ap.add_argument("-r", "--run", required=True,
 	help="run number")
-ap.add_argument("-d","--dir",required=True, help="set directory")
+ap.add_argument("-d","--dir",required=False, help="set directory")
 args = vars(ap.parse_args())
 
 #name of output model
 set_number=str(args["set"])
 run_number=str(args["run"])
-set_directory=str(args["dir"])
+os.chdir("../../image_data")
+set_directory = os.getcwd()
+images_dir = set_directory
 CNN_model = "ConvNetBase"
 image_dimension=384
 model_id=CNN_model + "_"+set_number+"_"+run_number
 print(model_id)
-image_batch_size=16
+image_batch_size=8
 
 # load the CNN model network, head FC layer sets are left
 # off
@@ -168,8 +171,8 @@ print(CNN_model +  "model loaded")
 #Define directories to use based on set number for loading data, saving data
 train_dataset=set_directory + "/Set_" + set_number +"/train_" + set_number + ".csv"
 test_dataset=set_directory + "/Set_" + set_number +"/test_" + set_number + ".csv"
-models_dir = set_directory +"/Set_" + set_number +"/models"
-images_dir = "C:\Ceramic_Models/no_wepo/images/"
+models_dir = set_directory +"/Set_" + set_number +"/models/"
+
 print(train_dataset)
 print(test_dataset)
 
@@ -261,7 +264,7 @@ model.fit(aug.flow(trainX, trainY, batch_size=image_batch_size),
 	steps_per_epoch=len(trainX) // image_batch_size, callbacks=callbacks,verbose=1)
 
 
-full_model_path = os.path.join(models_dir,'',model_id +'.model')
+full_model_path = os.path.join(models_dir,'',model_id +'.keras')
 #Set callbacks for final run, including saving models based on test accuracy (called val_acc here),
 callbacks=[LearningRateScheduler(step_decay),ModelCheckpoint(full_model_path, monitor='val_accuracy', verbose=1,save_best_only=True,
           save_weights_only=False,mode='max',save_freq='epoch')]
@@ -284,8 +287,8 @@ print("Final model compiled")
 
 # train the model again, this time fine-tuning the full set of CONV layers
 print("Fine-tuning model...")
-epoch_full=90
-image_batch_size=4
+epoch_full=40
+image_batch_size=8
 H=model.fit(aug.flow(trainX, trainY, batch_size=image_batch_size),
 	validation_data=(testX, testY), epochs=epoch_full,
 	steps_per_epoch=len(trainX) // image_batch_size, callbacks=callbacks, verbose=1)

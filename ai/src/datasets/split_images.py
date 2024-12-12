@@ -116,6 +116,8 @@ def copy_images(image_list, source, destination, gray_scale=True):
   data_dict = {}
   read_csv(image_list, data_dict)
   print(f'Copying images from {source} to {destination}')
+  if gray_scale:
+    print(f'Augmenting images through grayscale')
   for (image_name, label) in data_dict.items():
     categorized_image_dir = destination / label
     if not categorized_image_dir.exists():
